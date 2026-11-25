@@ -1,0 +1,20 @@
+/**
+ * Editor-only styles for the reviews-block/testimonials block.
+ * Keeps the ServerSideRender preview from scrolling horizontally inside the
+ * editor canvas and gives a subtle placeholder frame.
+ *
+ * @package ReviewsBlock
+ */
+
+.wp-block-reviews-block-testimonials .reviews-block--carousel .reviews-block__viewport {
+	overflow-x: hidden;
+}
+
+.wp-block-reviews-block-testimonials .reviews-block__controls {
+	pointer-events: none;
+	opacity: 0.7;
+}
+
+.wp-block-reviews-block-testimonials .reviews-block--empty {
+	background: #f6f6fa;
+}

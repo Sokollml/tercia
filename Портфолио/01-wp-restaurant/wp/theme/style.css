@@ -1,0 +1,25 @@
+/*
+Theme Name: Verano
+Theme URI: https://example.com/verano
+Author: Portfolio
+Author URI: https://example.com
+Description: Самостоятельная тема для остерии/ресторана. Средиземноморская палитра (крем/терракота/олива), кастомный тип записи «Блюдо», страницы меню/галереи/брони. Совместима с Elementor (можно верстать страницы визуально) и с классическим редактором. Основные стили подключаются из assets/css/style.css, этот файл нужен WordPress как метаданные темы.
+Version: 1.0.0
+Requires at least: 6.0
+Tested up to: 6.6
+Requires PHP: 7.4
+License: GNU General Public License v2 or later
+License URI: http://www.gnu.org/licenses/gpl-2.0.html
+Text Domain: verano
+Tags: restaurant, custom-menu, translation-ready, custom-colors, block-styles
+*/
+
+/*
+  Реальные стили темы находятся в assets/css/style.css и подключаются через
+  wp_enqueue_style() в functions.php. Здесь оставляем только пару правил
+  для админ-бара, чтобы не ломать вёрстку шапки.
+*/
+.admin-bar .site-header { top: 32px; }
+@media screen and (max-width: 782px) {
+  .admin-bar .site-header { top: 46px; }
+}

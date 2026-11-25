@@ -1,0 +1,36 @@
+# --- OS / редакторы ---
+.DS_Store
+Thumbs.db
+._*
+.Spotlight-V100
+.Trashes
+*~
+*.swp
+.idea/
+.vscode/
+
+# --- Node / инструменты (на случай будущей сборки) ---
+node_modules/
+npm-debug.log*
+yarn-error.log*
+.cache/
+dist/
+.tmp/
+
+# --- Vercel / Netlify ---
+.vercel
+.netlify
+
+# --- WordPress: не коммитим ядро и загрузки, только свою тему/плагин ---
+# (в репозитории лежит лишь wp/themes/forma-fitness, wp/mu-plugins/*, sample-content)
+wp-admin/
+wp-includes/
+wp-config.php
+wp-content/uploads/
+wp-content/cache/
+wp-content/upgrade/
+*.log
+
+# --- Секреты ---
+.env
+.env.*

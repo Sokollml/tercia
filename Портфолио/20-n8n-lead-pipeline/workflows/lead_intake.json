@@ -1,0 +1,323 @@
+{
+  "name": "20 · Lead Intake (заявки с сайта)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-intake",
+        "responseMode": "onReceived",
+        "responseData": "={\"ok\":true}",
+        "options": {}
+      },
+      "id": "8a5c7bab-0584-477f-94e1-a44f1898406c",
+      "name": "Вебхук: Заявка",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "tok-1",
+              "leftValue": "={{ $json.headers['x-webhook-token'] }}",
+              "rightValue": "={{ $env.LEAD_WEBHOOK_TOKEN }}",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "c206e0a6-056e-41b7-aa68-02a1079e8f3f",
+      "name": "IF: Проверка токена",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        460,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Нормализация входящей заявки + детерминированный хеш для идемпотентности.\n// Хеш считаем чистым JS (FNV-1a), чтобы не зависеть от NODE_FUNCTION_ALLOW_BUILTIN.\nconst body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\n\nconst s = (v) => (v === undefined || v === null) ? '' : String(v).trim();\n\nconst name    = s(body.name || body.fullname || body.contact_name);\nconst contact = s(body.contact || body.email || body.phone);\nconst message = s(body.message || body.text || body.comment || body.description);\nconst source  = s(body.source || body.utm_source || 'website');\n\n// Канонизированная строка для хеша (нижний регистр, стабильный порядок ключей).\nconst canon = JSON.stringify({ name, contact, message, source }).toLowerCase();\n\nfunction fnv1a(str) {\n  let h = 0x811c9dc5;\n  for (let i = 0; i < str.length; i++) {\n    h ^= str.charCodeAt(i);\n    h = (h + ((h << 1) + (h << 4) + (h << 7) + (h << 8) + (h << 24))) >>> 0;\n  }\n  return ('00000000' + h.toString(16)).slice(-8);\n}\n// Складываем два прохода -> 16 hex-символов, меньше шанс коллизий.\nconst hash = fnv1a(canon) + fnv1a('salt::' + canon);\n\nif (!name && !contact && !message) {\n  // Пустая заявка — помечаем, но не роняем поток.\n}\n\nreturn [{\n  json: { name, contact, message, source, hash, received_at: new Date().toISOString() }\n}];\n"
+      },
+      "id": "7ef14d24-931a-4657-8a99-5716a990699d",
+      "name": "Код: Нормализация",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        680,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Классифицируй заявку и верни строгий JSON.\nИмя: {{ $json.name }}\nКонтакт: {{ $json.contact }}\nИсточник: {{ $json.source }}\nСообщение: {{ $json.message }}",
+        "options": {
+          "systemMessage": "Ты — классификатор входящих заявок с сайта. Определи тип обращения и извлеки поля.\nВерни СТРОГО один JSON-объект без markdown, без пояснений, без ```.\n\nСхема ответа:\n{\n  \"type\": \"lead\" | \"question\" | \"spam\",\n  \"name\": \"имя клиента или пустая строка\",\n  \"contact\": \"email/телефон/ник или пустая строка\",\n  \"summary\": \"суть обращения в 1-2 предложениях\",\n  \"budget\": \"бюджет числом/строкой или пустая строка\"\n}\n\nПравила:\n- lead — есть намерение купить/заказать услугу или запрос КП.\n- question — общий вопрос без явного намерения покупки.\n- spam — реклама, ссылки, бессмыслица, попытки SEO/рассылки.\n- Если поля нет — пустая строка, НЕ выдумывай.\n- Отвечай ТОЛЬКО JSON-объектом."
+        }
+      },
+      "id": "73a0f2d9-1c5a-449e-b913-2f8a4d2b27da",
+      "name": "AI Агент: Классификация",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [
+        900,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "id": "cde4282c-6064-44ad-9c24-ffb83bb34af5",
+      "name": "OpenAI Модель",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [
+        820,
+        520
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_OPENAI_CRED_ID",
+          "name": "OpenAI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Парсинг ответа ИИ. Модель обязана вернуть строгий JSON, но мы не доверяем ей:\n// вытаскиваем JSON-объект, валидируем, при мусоре -> fallback 'manual_review'.\nconst agent = $json;\nlet text = agent.output ?? agent.text ?? agent.response ?? '';\nif (typeof text !== 'string') text = JSON.stringify(text);\n\nfunction extractJson(t) {\n  const a = t.indexOf('{');\n  const b = t.lastIndexOf('}');\n  if (a === -1 || b === -1 || b < a) return null;\n  try { return JSON.parse(t.slice(a, b + 1)); } catch (e) { return null; }\n}\n\n// Нормализованные поля тянем из предыдущего шага (агент перезаписал item).\nconst norm = $('Код: Нормализация').item.json;\nconst allowed = ['lead', 'question', 'spam'];\n\nlet parsed = extractJson(text);\nlet fallback = false;\n\nif (!parsed || typeof parsed !== 'object') { parsed = {}; fallback = true; }\n\nlet type = String(parsed.type || '').toLowerCase().trim();\nif (!allowed.includes(type)) { type = 'manual_review'; fallback = true; }\n\nconst name    = String(parsed.name || norm.name || '').trim();\nconst contact = String(parsed.contact || norm.contact || '').trim();\nconst summary = String(parsed.summary || norm.message || '').trim().slice(0, 1000);\n\nlet budget = parsed.budget;\nbudget = (budget === undefined || budget === null) ? '' : String(budget).trim();\n\nreturn [{\n  json: {\n    hash: norm.hash,\n    type,\n    name,\n    contact,\n    summary,\n    budget,\n    source: norm.source,\n    raw_message: norm.message,\n    is_spam: type === 'spam',\n    fallback,\n    received_at: norm.received_at,\n    classifier_raw: text\n  }\n}];\n"
+      },
+      "id": "86f8b537-a68b-46b1-ad31-6c868b7513a4",
+      "name": "Код: Парсинг JSON",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1120,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO leads\n  (hash, type, name, contact, summary, budget, source, raw_message, is_spam, fallback, received_at)\nVALUES\n  ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11)\nON CONFLICT (hash) DO NOTHING\nRETURNING *, (xmax = 0) AS inserted;",
+        "options": {
+          "queryReplacement": "={{ [$json.hash, $json.type, $json.name, $json.contact, $json.summary, $json.budget, $json.source, $json.raw_message, $json.is_spam, $json.fallback, $json.received_at] }}"
+        }
+      },
+      "id": "af06c02a-6f1d-455b-bcdc-0ceff7d8e104",
+      "name": "Postgres: INSERT лид",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [
+        1340,
+        300
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_PG_CRED_ID",
+          "name": "Postgres VPS"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "spam-1",
+              "leftValue": "={{ $json.is_spam }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "455d0a52-e744-4dad-a6ae-c7d2c01e1111",
+      "name": "IF: Спам?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        1560,
+        300
+      ]
+    },
+    {
+      "parameters": {
+        "language": "javaScript",
+        "jsCode": "// Спам: не уведомляем владельца, только фиксируем в логе выполнения n8n.\nconsole.log('[LEAD-PIPELINE] SPAM отклонён:', {\n  hash: $json.hash,\n  contact: $json.contact,\n  summary: $json.summary\n});\nreturn [{ json: { logged: true, reason: 'spam', hash: $json.hash } }];\n"
+      },
+      "id": "7bf36aae-9832-4953-b642-c495b186baf8",
+      "name": "Код: Лог спама",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        1780,
+        420
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "message",
+        "operation": "sendMessage",
+        "chatId": "={{ $env.OWNER_TELEGRAM_CHAT_ID }}",
+        "text": "=🆕 *Новая заявка* ({{ $json.type }})\n\n👤 *Имя:* {{ $json.name || '—' }}\n📞 *Контакт:* {{ $json.contact || '—' }}\n💰 *Бюджет:* {{ $json.budget || '—' }}\n🌐 *Источник:* {{ $json.source || '—' }}\n\n📝 *Суть:* {{ $json.summary }}\n\n🔑 hash: `{{ $json.hash }}`{{ $json.fallback ? '\\n⚠️ Требуется ручная проверка классификации' : '' }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "1d4ab007-784c-419a-90aa-19b27710c3e4",
+      "name": "Telegram: Карточка",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1780,
+        220
+      ],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TG_CRED_ID",
+          "name": "Telegram Bot"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Вебхук: Заявка": {
+      "main": [
+        [
+          {
+            "node": "IF: Проверка токена",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Проверка токена": {
+      "main": [
+        [
+          {
+            "node": "Код: Нормализация",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Код: Нормализация": {
+      "main": [
+        [
+          {
+            "node": "AI Агент: Классификация",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Модель": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Агент: Классификация",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Агент: Классификация": {
+      "main": [
+        [
+          {
+            "node": "Код: Парсинг JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Код: Парсинг JSON": {
+      "main": [
+        [
+          {
+            "node": "Postgres: INSERT лид",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres: INSERT лид": {
+      "main": [
+        [
+          {
+            "node": "IF: Спам?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: Спам?": {
+      "main": [
+        [
+          {
+            "node": "Код: Лог спама",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Telegram: Карточка",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

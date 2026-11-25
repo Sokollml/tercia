@@ -1,0 +1,453 @@
+{
+  "name": "Freelance Orders — API",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "orders",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "b1000000-0000-4000-8000-000000000001",
+      "name": "Webhook: GET orders",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        -200
+      ],
+      "webhookId": "b1000000-0000-4000-8000-000000000001"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Валидация Telegram WebApp initData (HMAC-SHA256).\n// Зеркало validator/src/initdata.py. Требует NODE_FUNCTION_ALLOW_BUILTIN=crypto\n// (или вынеси проверку в validator-микросервис). При невалидной подписи бросаем\n// ошибку -> выполнение прерывается, клиент получает ошибку вебхука.\nconst crypto = require('crypto');\nconst h = $json.headers || {};\nconst initData =\n  h['x-telegram-init-data'] ||\n  h['X-Telegram-Init-Data'] ||\n  ($json.query && $json.query.initData) ||\n  ($json.body && $json.body.initData) ||\n  '';\nconst botToken = $env.BOT_TOKEN || '';\nconst maxAge = parseInt($env.INITDATA_MAX_AGE || '86400', 10);\n\nfunction fail(reason) { throw new Error('initData invalid: ' + reason); }\n\nif (!initData || !botToken) fail('empty');\n\nconst p = new URLSearchParams(initData);\nconst hash = p.get('hash');\nif (!hash) fail('no_hash');\np.delete('hash');\n\nconst pairs = [];\nfor (const [k, v] of p.entries()) pairs.push([k, v]);\npairs.sort((a, b) => (a[0] < b[0] ? -1 : (a[0] > b[0] ? 1 : 0)));\nconst dcs = pairs.map(([k, v]) => k + '=' + v).join('\\n');\n\nconst secret = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();\nconst calc = crypto.createHmac('sha256', secret).update(dcs).digest('hex');\nif (calc !== hash) fail('bad_hash');\n\nconst authDate = parseInt(p.get('auth_date') || '0', 10);\nif (!authDate) fail('no_auth_date');\nif (Math.floor(Date.now() / 1000) - authDate > maxAge) fail('expired');\n\nlet user = null;\ntry { user = JSON.parse(p.get('user') || 'null'); } catch (e) { user = null; }\nconst uid = user && user.id ? user.id : null;\nif (!uid) fail('no_user');\n\nreturn [{ json: { user_id: uid, query: $json.query || {}, body: $json.body || {} } }];\n"
+      },
+      "id": "b1000000-0000-4000-8000-000000000002",
+      "name": "Validate initData (orders)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Строим безопасный SQL для ленты заказов из query-параметров.\n// Значения экранируются; числа парсятся; лимит ограничен сверху.\nconst q = $json.query || {};\nconst uid = parseInt($json.user_id, 10);\nfunction esc(s) { return String(s).replace(/'/g, \"''\"); }\nfunction arr(csv) { return String(csv).split(',').map((s) => s.trim()).filter(Boolean); }\n\nconst where = ['1=1', \"(s.status IS NULL OR s.status <> 'hidden')\"];\nif (q.service_type) where.push(\"o.service_type = '\" + esc(q.service_type) + \"'\");\nif (q.urgency) where.push(\"o.urgency = '\" + esc(q.urgency) + \"'\");\nif (q.min_budget && !isNaN(parseFloat(q.min_budget)))\n  where.push('(o.budget IS NULL OR o.budget >= ' + parseFloat(q.min_budget) + ')');\nif (q.q) where.push(\"(o.summary ILIKE '%\" + esc(q.q) + \"%' OR o.raw_text ILIKE '%\" + esc(q.q) + \"%')\");\nif (q.skills) {\n  const s = arr(q.skills).map((x) => \"'\" + esc(x) + \"'\");\n  if (s.length) where.push('o.skills_required ?| array[' + s.join(',') + ']');\n}\nif (q.languages) {\n  const s = arr(q.languages).map((x) => \"'\" + esc(x) + \"'\");\n  if (s.length) where.push('o.languages ?| array[' + s.join(',') + ']');\n}\n\nlet order = 'o.created_at DESC';\nif (q.sort === 'budget') order = 'o.budget DESC NULLS LAST, o.created_at DESC';\nif (q.sort === 'urgency')\n  order = \"CASE o.urgency WHEN 'high' THEN 3 WHEN 'medium' THEN 2 ELSE 1 END DESC, o.created_at DESC\";\n\nlet limit = parseInt(q.limit || '20', 10);\nif (isNaN(limit) || limit < 1) limit = 20;\nif (limit > 50) limit = 50;\nlet offset = parseInt(q.offset || '0', 10);\nif (isNaN(offset) || offset < 0) offset = 0;\n\nconst sql =\n  'SELECT o.*, COALESCE(s.status, \\'new\\') AS user_status, s.note AS user_note ' +\n  'FROM orders o ' +\n  'LEFT JOIN user_order_status s ON s.order_id = o.id AND s.user_tg_id = ' + uid + ' ' +\n  'WHERE ' + where.join(' AND ') + ' ' +\n  'ORDER BY ' + order + ' ' +\n  'LIMIT ' + limit + ' OFFSET ' + offset + ';';\n\nreturn [{ json: { sql: sql, limit: limit, offset: offset } }];\n"
+      },
+      "id": "b1000000-0000-4000-8000-000000000003",
+      "name": "Build Orders Query",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        40,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "={{ $json.sql }}",
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000004",
+      "name": "Select Orders",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [
+        260,
+        -200
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "PG_CRED_ID",
+          "name": "Freelance Postgres"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"items\": $input.all().map(i => i.json).filter(r => r.id !== undefined), \"limit\": $('Build Orders Query').first().json.limit, \"offset\": $('Build Orders Query').first().json.offset } }}",
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000005",
+      "name": "Respond Orders",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        480,
+        -200
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "GET",
+        "path": "settings",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "b1000000-0000-4000-8000-000000000011",
+      "name": "Webhook: GET settings",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        60
+      ],
+      "webhookId": "b1000000-0000-4000-8000-000000000011"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Валидация Telegram WebApp initData (HMAC-SHA256).\n// Зеркало validator/src/initdata.py. Требует NODE_FUNCTION_ALLOW_BUILTIN=crypto\n// (или вынеси проверку в validator-микросервис). При невалидной подписи бросаем\n// ошибку -> выполнение прерывается, клиент получает ошибку вебхука.\nconst crypto = require('crypto');\nconst h = $json.headers || {};\nconst initData =\n  h['x-telegram-init-data'] ||\n  h['X-Telegram-Init-Data'] ||\n  ($json.query && $json.query.initData) ||\n  ($json.body && $json.body.initData) ||\n  '';\nconst botToken = $env.BOT_TOKEN || '';\nconst maxAge = parseInt($env.INITDATA_MAX_AGE || '86400', 10);\n\nfunction fail(reason) { throw new Error('initData invalid: ' + reason); }\n\nif (!initData || !botToken) fail('empty');\n\nconst p = new URLSearchParams(initData);\nconst hash = p.get('hash');\nif (!hash) fail('no_hash');\np.delete('hash');\n\nconst pairs = [];\nfor (const [k, v] of p.entries()) pairs.push([k, v]);\npairs.sort((a, b) => (a[0] < b[0] ? -1 : (a[0] > b[0] ? 1 : 0)));\nconst dcs = pairs.map(([k, v]) => k + '=' + v).join('\\n');\n\nconst secret = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();\nconst calc = crypto.createHmac('sha256', secret).update(dcs).digest('hex');\nif (calc !== hash) fail('bad_hash');\n\nconst authDate = parseInt(p.get('auth_date') || '0', 10);\nif (!authDate) fail('no_auth_date');\nif (Math.floor(Date.now() / 1000) - authDate > maxAge) fail('expired');\n\nlet user = null;\ntry { user = JSON.parse(p.get('user') || 'null'); } catch (e) { user = null; }\nconst uid = user && user.id ? user.id : null;\nif (!uid) fail('no_user');\n\nreturn [{ json: { user_id: uid, query: $json.query || {}, body: $json.body || {} } }];\n"
+      },
+      "id": "b1000000-0000-4000-8000-000000000012",
+      "name": "Validate initData (get settings)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT settings FROM users WHERE tg_id = $1;",
+        "options": {
+          "queryReplacement": "={{ $json.user_id }}"
+        }
+      },
+      "id": "b1000000-0000-4000-8000-000000000013",
+      "name": "Get Settings",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [
+        40,
+        60
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "PG_CRED_ID",
+          "name": "Freelance Postgres"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"settings\": ($json && $json.settings) ? $json.settings : {} } }}",
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000014",
+      "name": "Respond Settings",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        60
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "settings",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "b1000000-0000-4000-8000-000000000021",
+      "name": "Webhook: POST settings",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        320
+      ],
+      "webhookId": "b1000000-0000-4000-8000-000000000021"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Валидация Telegram WebApp initData (HMAC-SHA256).\n// Зеркало validator/src/initdata.py. Требует NODE_FUNCTION_ALLOW_BUILTIN=crypto\n// (или вынеси проверку в validator-микросервис). При невалидной подписи бросаем\n// ошибку -> выполнение прерывается, клиент получает ошибку вебхука.\nconst crypto = require('crypto');\nconst h = $json.headers || {};\nconst initData =\n  h['x-telegram-init-data'] ||\n  h['X-Telegram-Init-Data'] ||\n  ($json.query && $json.query.initData) ||\n  ($json.body && $json.body.initData) ||\n  '';\nconst botToken = $env.BOT_TOKEN || '';\nconst maxAge = parseInt($env.INITDATA_MAX_AGE || '86400', 10);\n\nfunction fail(reason) { throw new Error('initData invalid: ' + reason); }\n\nif (!initData || !botToken) fail('empty');\n\nconst p = new URLSearchParams(initData);\nconst hash = p.get('hash');\nif (!hash) fail('no_hash');\np.delete('hash');\n\nconst pairs = [];\nfor (const [k, v] of p.entries()) pairs.push([k, v]);\npairs.sort((a, b) => (a[0] < b[0] ? -1 : (a[0] > b[0] ? 1 : 0)));\nconst dcs = pairs.map(([k, v]) => k + '=' + v).join('\\n');\n\nconst secret = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();\nconst calc = crypto.createHmac('sha256', secret).update(dcs).digest('hex');\nif (calc !== hash) fail('bad_hash');\n\nconst authDate = parseInt(p.get('auth_date') || '0', 10);\nif (!authDate) fail('no_auth_date');\nif (Math.floor(Date.now() / 1000) - authDate > maxAge) fail('expired');\n\nlet user = null;\ntry { user = JSON.parse(p.get('user') || 'null'); } catch (e) { user = null; }\nconst uid = user && user.id ? user.id : null;\nif (!uid) fail('no_user');\n\nreturn [{ json: { user_id: uid, query: $json.query || {}, body: $json.body || {} } }];\n"
+      },
+      "id": "b1000000-0000-4000-8000-000000000022",
+      "name": "Validate initData (save settings)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO users (tg_id, settings) VALUES ($1, $2::jsonb)\nON CONFLICT (tg_id) DO UPDATE SET settings = EXCLUDED.settings\nRETURNING settings;",
+        "options": {
+          "queryReplacement": "={{ $json.user_id }},={{ JSON.stringify($json.body.settings || {}) }}"
+        }
+      },
+      "id": "b1000000-0000-4000-8000-000000000023",
+      "name": "Upsert Settings",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [
+        40,
+        320
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "PG_CRED_ID",
+          "name": "Freelance Postgres"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"settings\": ($json && $json.settings) ? $json.settings : {} } }}",
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000024",
+      "name": "Respond Save Settings",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        320
+      ]
+    },
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "order-status",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "*"
+        }
+      },
+      "id": "b1000000-0000-4000-8000-000000000031",
+      "name": "Webhook: POST order-status",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        -400,
+        580
+      ],
+      "webhookId": "b1000000-0000-4000-8000-000000000031"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Валидация Telegram WebApp initData (HMAC-SHA256).\n// Зеркало validator/src/initdata.py. Требует NODE_FUNCTION_ALLOW_BUILTIN=crypto\n// (или вынеси проверку в validator-микросервис). При невалидной подписи бросаем\n// ошибку -> выполнение прерывается, клиент получает ошибку вебхука.\nconst crypto = require('crypto');\nconst h = $json.headers || {};\nconst initData =\n  h['x-telegram-init-data'] ||\n  h['X-Telegram-Init-Data'] ||\n  ($json.query && $json.query.initData) ||\n  ($json.body && $json.body.initData) ||\n  '';\nconst botToken = $env.BOT_TOKEN || '';\nconst maxAge = parseInt($env.INITDATA_MAX_AGE || '86400', 10);\n\nfunction fail(reason) { throw new Error('initData invalid: ' + reason); }\n\nif (!initData || !botToken) fail('empty');\n\nconst p = new URLSearchParams(initData);\nconst hash = p.get('hash');\nif (!hash) fail('no_hash');\np.delete('hash');\n\nconst pairs = [];\nfor (const [k, v] of p.entries()) pairs.push([k, v]);\npairs.sort((a, b) => (a[0] < b[0] ? -1 : (a[0] > b[0] ? 1 : 0)));\nconst dcs = pairs.map(([k, v]) => k + '=' + v).join('\\n');\n\nconst secret = crypto.createHmac('sha256', 'WebAppData').update(botToken).digest();\nconst calc = crypto.createHmac('sha256', secret).update(dcs).digest('hex');\nif (calc !== hash) fail('bad_hash');\n\nconst authDate = parseInt(p.get('auth_date') || '0', 10);\nif (!authDate) fail('no_auth_date');\nif (Math.floor(Date.now() / 1000) - authDate > maxAge) fail('expired');\n\nlet user = null;\ntry { user = JSON.parse(p.get('user') || 'null'); } catch (e) { user = null; }\nconst uid = user && user.id ? user.id : null;\nif (!uid) fail('no_user');\n\nreturn [{ json: { user_id: uid, query: $json.query || {}, body: $json.body || {} } }];\n"
+      },
+      "id": "b1000000-0000-4000-8000-000000000032",
+      "name": "Validate initData (order status)",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -180,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "WITH ensure_user AS (\n  INSERT INTO users (tg_id) VALUES ($1)\n  ON CONFLICT (tg_id) DO NOTHING\n)\nINSERT INTO user_order_status (user_tg_id, order_id, status, note, updated_at)\nVALUES ($1, $2, $3, $4, now())\nON CONFLICT (user_tg_id, order_id)\nDO UPDATE SET status = EXCLUDED.status, note = EXCLUDED.note, updated_at = now()\nRETURNING order_id, status, note;",
+        "options": {
+          "queryReplacement": "={{ $json.user_id }},={{ $json.body.order_id }},={{ $json.body.status || 'new' }},={{ $json.body.note || null }}"
+        }
+      },
+      "id": "b1000000-0000-4000-8000-000000000033",
+      "name": "Upsert Order Status",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [
+        40,
+        580
+      ],
+      "credentials": {
+        "postgres": {
+          "id": "PG_CRED_ID",
+          "name": "Freelance Postgres"
+        }
+      },
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true, \"order_id\": $json.order_id, \"status\": $json.status, \"note\": $json.note } }}",
+        "options": {}
+      },
+      "id": "b1000000-0000-4000-8000-000000000034",
+      "name": "Respond Order Status",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [
+        260,
+        580
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook: GET orders": {
+      "main": [
+        [
+          {
+            "node": "Validate initData (orders)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate initData (orders)": {
+      "main": [
+        [
+          {
+            "node": "Build Orders Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Orders Query": {
+      "main": [
+        [
+          {
+            "node": "Select Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Orders": {
+      "main": [
+        [
+          {
+            "node": "Respond Orders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: GET settings": {
+      "main": [
+        [
+          {
+            "node": "Validate initData (get settings)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate initData (get settings)": {
+      "main": [
+        [
+          {
+            "node": "Get Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Settings": {
+      "main": [
+        [
+          {
+            "node": "Respond Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: POST settings": {
+      "main": [
+        [
+          {
+            "node": "Validate initData (save settings)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate initData (save settings)": {
+      "main": [
+        [
+          {
+            "node": "Upsert Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Settings": {
+      "main": [
+        [
+          {
+            "node": "Respond Save Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: POST order-status": {
+      "main": [
+        [
+          {
+            "node": "Validate initData (order status)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate initData (order status)": {
+      "main": [
+        [
+          {
+            "node": "Upsert Order Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Order Status": {
+      "main": [
+        [
+          {
+            "node": "Respond Order Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "pinData": {},
+  "meta": {
+    "description": "Вебхук-API мини-аппа: лента заказов с фильтрами и пагинацией, чтение/запись настроек, апдейт статуса заказа. Каждый эндпоинт валидирует Telegram initData (HMAC)."
+  }
+}

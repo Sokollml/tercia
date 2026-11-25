@@ -1,0 +1,13 @@
+# n8n / секреты
+.env
+*.env
+credentials*.json
+
+# ОС
+.DS_Store
+._*
+Thumbs.db
+
+# редакторы
+.vscode/
+.idea/

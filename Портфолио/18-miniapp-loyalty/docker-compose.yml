@@ -1,0 +1,64 @@
+# ============================================================================
+#  Local / self-hosted stack: PostgreSQL + backend API + bot launcher.
+#
+#  The frontend (miniapp/) is a static build that you deploy separately to a
+#  public HTTPS host (Vercel/Netlify/Cloudflare Pages) — Telegram requires HTTPS
+#  for mini-apps. Point MINIAPP_URL at that deployment.
+#
+#  Usage:
+#     cp .env.example .env   # then fill in BOT_TOKEN, ADMIN_IDS, MINIAPP_URL
+#     docker compose up -d --build
+#     docker compose exec backend npm run migrate   # create the tables
+# ============================================================================
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-loyalty}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-loyalty}
+      POSTGRES_DB: ${DB_NAME:-loyalty}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-loyalty}']
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    ports:
+      - '5432:5432'
+
+  backend:
+    build: ./backend
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      ADMIN_IDS: ${ADMIN_IDS}
+      MINIAPP_URL: ${MINIAPP_URL:-*}
+      PORT: '3000'
+      HOST: '0.0.0.0'
+      STAMPS_PER_REWARD: ${STAMPS_PER_REWARD:-8}
+      INITDATA_MAX_AGE_SECONDS: ${INITDATA_MAX_AGE_SECONDS:-86400}
+      DB_HOST: db
+      DB_PORT: '5432'
+      DB_USER: ${DB_USER:-loyalty}
+      DB_PASSWORD: ${DB_PASSWORD:-loyalty}
+      DB_NAME: ${DB_NAME:-loyalty}
+      DB_SSL: 'false'
+    ports:
+      - '3000:3000'
+
+  bot:
+    build: ./bot
+    restart: unless-stopped
+    depends_on:
+      - backend
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      MINIAPP_URL: ${MINIAPP_URL}
+
+volumes:
+  pgdata:

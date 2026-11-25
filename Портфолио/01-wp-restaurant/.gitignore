@@ -1,0 +1,35 @@
+# macOS
+.DS_Store
+._*
+.AppleDouble
+.LSOverride
+.Spotlight-V100
+.Trashes
+
+# Windows
+Thumbs.db
+Desktop.ini
+
+# Редакторы / IDE
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.swp
+*~
+
+# Логи и временные файлы
+*.log
+npm-debug.log*
+*.tmp
+*.bak
+
+# Зависимости (на случай, если появятся)
+node_modules/
+vendor/
+
+# Локальные окружения WordPress (сюда кладут только тему/плагин/импорт,
+# а не всю установку WP)
+wp-config.php
+wp-content/uploads/
+*.sql

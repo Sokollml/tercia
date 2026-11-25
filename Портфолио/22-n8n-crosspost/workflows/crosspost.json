@@ -1,0 +1,191 @@
+{
+  "name": "Crosspost — приём и публикация",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "crosspost-new",
+        "responseMode": "lastNode",
+        "options": {}
+      },
+      "id": "d45e269e-3ce2-4556-b30e-fdf5a89c24c2",
+      "name": "Webhook приёма поста",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-220, 200],
+      "webhookId": "d45e269e-3ce2-4556-b30e-fdf5a89c24c2"
+    },
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "id": "fdf07d6a-5dc1-4cbf-8c41-a97e6743769d",
+      "name": "Telegram бот-приёмник",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [-220, 440],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TELEGRAM_CRED_ID",
+          "name": "Telegram Bot (приёмник)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Нормализация входящего поста из вебформы (Webhook) ИЛИ из Telegram-бота.\n// Приводим к единой структуре очереди.\nconst body = $json.body || $json;\nconst tgMsg = $json.message || (body && body.message) || null;\n\n// Текст: из формы (body.text) или из телеграм-сообщения.\nlet text = '';\nif (body && typeof body.text === 'string') text = body.text;\nelse if (tgMsg && typeof tgMsg.text === 'string') text = tgMsg.text;\nelse if (tgMsg && typeof tgMsg.caption === 'string') text = tgMsg.caption;\ntext = (text || '').trim();\n\n// Медиа (упрощённо, для демо).\nlet media_url = (body && body.media_url) || null;\nlet media_type = (body && body.media_type) || null;\nif (!media_url && tgMsg && Array.isArray(tgMsg.photo) && tgMsg.photo.length) {\n  media_type = 'photo';\n  media_url = tgMsg.photo[tgMsg.photo.length - 1].file_id; // file_id, отдаётся Telegram\n}\n\n// Каналы-получатели. По умолчанию — только telegram.\nlet channels = (body && body.channels) || ['telegram'];\nif (typeof channels === 'string') channels = channels.split(',').map(s => s.trim()).filter(Boolean);\n\n// Время публикации. Если не задано — публикуем сейчас.\nconst now = new Date();\nlet publish_at = (body && body.publish_at) ? new Date(body.publish_at) : now;\nif (isNaN(publish_at.getTime())) publish_at = now;\nconst publish_now = publish_at.getTime() <= now.getTime();\n\n// Источник\nconst source = tgMsg ? 'telegram_bot' : 'webhook_form';\n\nif (!text && !media_url) {\n  throw new Error('Пустой пост: нет ни текста, ни медиа');\n}\n\nreturn {\n  json: {\n    text,\n    media_url,\n    media_type,\n    channels,\n    channels_json: JSON.stringify(channels),\n    publish_at: publish_at.toISOString(),\n    publish_now,\n    source\n  }\n};"
+      },
+      "id": "71b2b5ef-2b1f-4325-9468-4da8621529a9",
+      "name": "Нормализация поста",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [40, 320]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO posts (text, media_url, media_type, channels, publish_at, status, source)\nVALUES ($1, $2, $3, $4::jsonb, $5::timestamptz, 'queued', $6)\nRETURNING id, text, media_url, media_type, channels, publish_at, status;",
+        "options": {
+          "queryReplacement": "={{ $json.text }},={{ $json.media_url }},={{ $json.media_type }},={{ $json.channels_json }},={{ $json.publish_at }},={{ $json.source }}"
+        }
+      },
+      "id": "55c08750-d2f3-4cde-b6fe-6ddf16edf86d",
+      "name": "Postgres INSERT в очередь",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [300, 320],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_POSTGRES_CRED_ID",
+          "name": "Postgres (crosspost)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose",
+            "version": 2
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ca2e2dd1-c986-40bf-8851-76fb66378d1a",
+              "leftValue": "={{ new Date($json.publish_at).getTime() <= Date.now() }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "85dd7737-84ab-4715-979c-a46ebccecef6",
+      "name": "Публиковать сейчас?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [560, 320]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHANNEL_ID || '@your_channel_placeholder' }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "42f442b4-2769-4dbe-a50d-21d258ac4c40",
+      "name": "Публикация в Telegram-канал",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [820, 200],
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TELEGRAM_CRED_ID",
+          "name": "Telegram Bot (приёмник)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.vk.com/method/wall.post",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            { "name": "owner_id", "value": "PLACEHOLDER_VK_OWNER_ID" },
+            { "name": "from_group", "value": "1" },
+            { "name": "message", "value": "={{ $json.text }}" },
+            { "name": "access_token", "value": "PLACEHOLDER_VK_ACCESS_TOKEN" },
+            { "name": "v", "value": "5.199" }
+          ]
+        },
+        "options": {}
+      },
+      "id": "2859b73c-cbe0-4030-8d8f-dcd0915c00cc",
+      "name": "Заготовка: VK wall.post",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [820, 400],
+      "disabled": true,
+      "notes": "ЗАГОТОВКА. Подставьте owner_id и access_token сообщества VK. Аналогично добавляются OK/Dzen/X и т.д."
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE posts\nSET status = 'published', published_at = now(), result = $2::jsonb\nWHERE id = $1\nRETURNING id, status, published_at;",
+        "options": {
+          "queryReplacement": "={{ $('Postgres INSERT в очередь').item.json.id }},={{ JSON.stringify($json) }}"
+        }
+      },
+      "id": "985fd8c5-4804-4fee-9d37-43482dce0bec",
+      "name": "Postgres UPDATE = published",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1100, 200],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_POSTGRES_CRED_ID",
+          "name": "Postgres (crosspost)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Webhook приёма поста": {
+      "main": [[{ "node": "Нормализация поста", "type": "main", "index": 0 }]]
+    },
+    "Telegram бот-приёмник": {
+      "main": [[{ "node": "Нормализация поста", "type": "main", "index": 0 }]]
+    },
+    "Нормализация поста": {
+      "main": [[{ "node": "Postgres INSERT в очередь", "type": "main", "index": 0 }]]
+    },
+    "Postgres INSERT в очередь": {
+      "main": [[{ "node": "Публиковать сейчас?", "type": "main", "index": 0 }]]
+    },
+    "Публиковать сейчас?": {
+      "main": [
+        [
+          { "node": "Публикация в Telegram-канал", "type": "main", "index": 0 },
+          { "node": "Заготовка: VK wall.post", "type": "main", "index": 0 }
+        ],
+        []
+      ]
+    },
+    "Публикация в Telegram-канал": {
+      "main": [[{ "node": "Postgres UPDATE = published", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

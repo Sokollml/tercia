@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tercia — Направление 02 · PRESS</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;500;600;700;800;900&family=Archivo+Black&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#F2F0EC; --paper-2:#E7E4DE; --ink:#0B0B0B; --ink-2:#1A1A1A;
+  --red:#F03B12; --rule:rgba(11,11,11,.16); --rule-2:rgba(11,11,11,.08);
+  --muted:#5A5A56;
+  --sans:'Archivo',system-ui,sans-serif; --black:'Archivo Black',system-ui,sans-serif; --mono:'JetBrains Mono',monospace;
+  --maxw:1440px; --pad:clamp(18px,3.4vw,44px);
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--paper);color:var(--ink);font-family:var(--sans);font-size:15.5px;line-height:1.5;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--pad)}
+.mono{font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase}
+.rule{height:1px;background:var(--ink)}
+::selection{background:var(--red);color:var(--paper)}
+
+/* header */
+.hdr{position:sticky;top:0;z-index:60;background:var(--paper);border-bottom:1.5px solid var(--ink)}
+.nav{display:flex;align-items:center;height:64px;gap:24px}
+.logo{font-family:var(--black);font-size:19px;letter-spacing:-.02em;text-transform:uppercase;display:flex;align-items:center;gap:9px}
+.logo b{width:9px;height:9px;background:var(--red);display:block;border-radius:50%}
+.nav-l{display:flex;gap:22px;margin-left:auto;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase}
+.nav-l a{padding:4px 0;border-bottom:1.5px solid transparent;transition:.18s}
+.nav-l a:hover{border-color:var(--red);color:var(--red)}
+.nbtn{background:var(--ink);color:var(--paper);font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;padding:11px 18px;transition:.2s}
+.nbtn:hover{background:var(--red)}
+.burger{display:none;font-family:var(--mono);font-size:11px;letter-spacing:.16em;background:none;border:1.5px solid var(--ink);padding:9px 12px;cursor:pointer;text-transform:uppercase}
+
+/* ticker */
+.tick{background:var(--ink);color:var(--paper);overflow:hidden;padding:9px 0;border-bottom:1.5px solid var(--ink)}
+.tick-t{display:flex;gap:34px;white-space:nowrap;width:max-content;animation:sc 30s linear infinite;font-family:var(--mono);font-size:11px;letter-spacing:.2em;text-transform:uppercase}
+.tick-t span{display:flex;gap:34px;align-items:center}
+.tick-t span::after{content:'●';color:var(--red);font-size:7px}
+@keyframes sc{to{transform:translateX(-50%)}}
+
+/* hero */
+.hero{border-bottom:1.5px solid var(--ink);position:relative}
+.hero-top{display:flex;justify-content:space-between;gap:20px;padding:20px 0 0;font-family:var(--mono);font-size:10.5px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);flex-wrap:wrap}
+h1{font-family:var(--black);font-size:clamp(52px,14.2vw,208px);line-height:.82;letter-spacing:-.045em;text-transform:uppercase;margin:22px 0 0;position:relative}
+h1 .stroke{-webkit-text-stroke:2px var(--ink);color:transparent}
+h1 .red{color:var(--red)}
+.slash{position:absolute;right:0;bottom:14%;width:clamp(90px,16vw,240px);color:var(--red);pointer-events:none}
+.hero-grid{display:grid;grid-template-columns:1.1fr .55fr .9fr;gap:0;border-top:1.5px solid var(--ink);margin-top:34px}
+.hero-grid>*{padding:26px 26px 30px;border-right:1px solid var(--rule)}
+.hero-grid>*:last-child{border-right:0;padding-right:0}
+.hero-grid>*:first-child{padding-left:0}
+.hg-lab{font-family:var(--mono);font-size:10px;letter-spacing:.18em;text-transform:uppercase;color:var(--red);margin-bottom:14px}
+.hero-grid p{font-size:16.5px;max-width:38ch}
+.acts{display:flex;gap:10px;flex-wrap:wrap;margin-top:22px}
+.btn{display:inline-flex;align-items:center;gap:9px;font-family:var(--mono);font-size:11px;letter-spacing:.16em;text-transform:uppercase;padding:15px 22px;border:1.5px solid var(--ink);transition:.2s}
+.btn-fill{background:var(--ink);color:var(--paper)}
+.btn-fill:hover{background:var(--red);border-color:var(--red)}
+.btn-out:hover{background:var(--ink);color:var(--paper)}
+.mini-stats div{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid var(--rule-2);font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase}
+.mini-stats b{font-family:var(--black);font-size:19px;letter-spacing:-.02em}
+.portrait{aspect-ratio:4/5;background:var(--red);position:relative;overflow:hidden}
+.portrait .halftone{position:absolute;inset:0;background-image:radial-gradient(var(--ink) 1.1px,transparent 1.2px);background-size:8px 8px;opacity:.5;
+  mask-image:linear-gradient(160deg,#000 10%,transparent 85%)}
+.portrait .big{position:absolute;inset:0;display:grid;place-items:center;font-family:var(--black);font-size:clamp(44px,7vw,96px);line-height:.85;color:var(--paper);text-transform:uppercase;letter-spacing:-.04em;text-align:center;mix-blend-mode:difference}
+
+/* section shell */
+.sec{padding:clamp(56px,6.5vw,104px) 0;border-bottom:1.5px solid var(--ink)}
+.sec-head{display:flex;justify-content:space-between;align-items:flex-end;gap:26px;flex-wrap:wrap;padding-bottom:20px;border-bottom:1.5px solid var(--ink);margin-bottom:0}
+.kick{font-family:var(--mono);font-size:10.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);display:flex;gap:9px;align-items:center;margin-bottom:12px}
+.kick::before{content:'■';font-size:8px}
+h2{font-family:var(--black);font-size:clamp(32px,6vw,78px);line-height:.88;letter-spacing:-.04em;text-transform:uppercase}
+.sec-head p{max-width:34ch;color:var(--muted);font-size:15px}
+
+/* services as index rows */
+.rows{border-top:0}
+.row{display:grid;grid-template-columns:78px 1.15fr 1.6fr 190px;gap:20px;align-items:start;padding:26px 0;border-bottom:1px solid var(--rule);position:relative;transition:.25s}
+.row:hover{background:var(--ink);color:var(--paper);padding-inline:18px}
+.row:hover .r-num,.row:hover .r-tags span{color:var(--paper);border-color:rgba(242,240,236,.3)}
+.row:hover .r-t{color:var(--red)}
+.r-num{font-family:var(--mono);font-size:11px;letter-spacing:.16em;color:var(--red);padding-top:6px}
+.r-t{font-family:var(--black);font-size:clamp(20px,2.3vw,30px);line-height:1;letter-spacing:-.03em;text-transform:uppercase;transition:.25s}
+.row p{color:inherit;opacity:.72;font-size:15px;max-width:46ch}
+.r-tags{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
+.r-tags span{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;border:1px solid var(--rule);padding:4px 9px;transition:.25s}
+
+/* stats */
+.stats{display:grid;grid-template-columns:repeat(4,1fr)}
+.stats>div{padding:38px 24px;border-right:1px solid var(--rule)}
+.stats>div:last-child{border-right:0}
+.stats>div:first-child{padding-left:0}
+.st-n{font-family:var(--black);font-size:clamp(44px,6.4vw,96px);line-height:.85;letter-spacing:-.05em}
+.st-n.red{color:var(--red)}
+.st-l{font-family:var(--mono);font-size:10px;letter-spacing:.16em;text-transform:uppercase;color:var(--muted);margin-top:14px}
+
+/* process */
+.proc{display:grid;grid-template-columns:repeat(4,1fr);border-top:0}
+.proc>div{padding:34px 22px 34px 0;border-right:1px solid var(--rule)}
+.proc>div:last-child{border-right:0}
+.proc>div:not(:first-child){padding-left:22px}
+.p-n{font-family:var(--black);font-size:clamp(46px,5.6vw,80px);line-height:.8;letter-spacing:-.05em;color:var(--paper);-webkit-text-stroke:1.6px var(--ink)}
+.proc>div:nth-child(4) .p-n{color:var(--red);-webkit-text-stroke:0}
+.p-t{font-family:var(--black);font-size:18px;text-transform:uppercase;letter-spacing:-.02em;margin:22px 0 9px}
+.proc p{color:var(--muted);font-size:14.5px}
+
+/* work grid */
+.work{display:grid;grid-template-columns:repeat(4,1fr);gap:0;border-top:1.5px solid var(--ink);border-left:1px solid var(--rule)}
+.w{border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);padding:0;transition:.25s}
+.w-img{aspect-ratio:1/1;display:grid;place-items:center;position:relative;overflow:hidden;border-bottom:1px solid var(--rule)}
+.w-img .t{font-family:var(--black);font-size:clamp(22px,2.6vw,38px);text-transform:uppercase;line-height:.9;letter-spacing:-.03em;text-align:center;padding:14px;transition:.4s}
+.w:nth-child(1) .w-img{background:var(--ink);color:var(--paper)}
+.w:nth-child(2) .w-img{background:var(--red);color:var(--paper)}
+.w:nth-child(3) .w-img{background:var(--paper-2);color:var(--ink)}
+.w:nth-child(4) .w-img{background:var(--ink);color:var(--red)}
+.w:nth-child(5) .w-img{background:var(--paper-2);color:var(--ink)}
+.w:nth-child(6) .w-img{background:var(--red);color:var(--ink)}
+.w:nth-child(7) .w-img{background:var(--ink);color:var(--paper)}
+.w:nth-child(8) .w-img{background:var(--paper-2);color:var(--red)}
+.w:hover .w-img .t{transform:scale(1.08)}
+.w-meta{padding:16px 16px 20px;display:flex;justify-content:space-between;gap:10px}
+.w-t{font-weight:700;font-size:14.5px;letter-spacing:-.01em}
+.w-c{font-family:var(--mono);font-size:9.5px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-top:5px}
+
+/* clients */
+.clients{display:flex;flex-wrap:wrap;gap:0;border-left:1px solid var(--rule)}
+.clients div{flex:1 1 160px;padding:28px 18px;text-align:center;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule);font-family:var(--black);font-size:15px;text-transform:uppercase;letter-spacing:-.01em;color:var(--muted);transition:.2s}
+.clients div:hover{color:var(--ink);background:var(--paper-2)}
+
+/* quotes */
+.qs{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-left:1px solid var(--rule)}
+.q{padding:28px;border-right:1px solid var(--rule);border-bottom:1px solid var(--rule)}
+.q .m{font-family:var(--black);font-size:40px;color:var(--red);line-height:.6;margin-bottom:14px}
+.q p{font-size:15.5px}
+.q .who{font-family:var(--mono);font-size:9.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-top:18px;padding-top:14px;border-top:1px solid var(--rule)}
+
+/* cta */
+.cta{background:var(--ink);color:var(--paper);padding:clamp(56px,7vw,110px) 0;border-bottom:1.5px solid var(--ink);position:relative;overflow:hidden}
+.cta::after{content:'';position:absolute;right:-4%;bottom:-30%;width:44%;height:180%;background:var(--red);transform:rotate(14deg)}
+.cta-in{position:relative;z-index:2;display:flex;justify-content:space-between;align-items:flex-end;gap:34px;flex-wrap:wrap}
+.cta h2{font-size:clamp(34px,7.2vw,104px)}
+.cta h2 em{font-style:normal;color:var(--red)}
+.cta .btn{border-color:var(--paper);color:var(--paper)}
+.cta .btn:hover{background:var(--paper);color:var(--ink)}
+
+/* footer */
+.ftr{background:var(--ink);color:var(--paper);padding:clamp(40px,5vw,70px) 0 26px}
+.f-g{display:grid;grid-template-columns:1.7fr 1fr 1fr 1.2fr;gap:30px}
+.f-h{font-family:var(--mono);font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--red);margin-bottom:16px}
+.f-g a{display:block;padding:5px 0;font-size:14.5px;opacity:.72;transition:.18s}
+.f-g a:hover{opacity:1;color:var(--red)}
+.ftr .logo{color:var(--paper)}
+.ftr .about{opacity:.6;font-size:14.5px;margin-top:14px;max-width:32ch}
+.f-b{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:46px;padding-top:20px;border-top:1px solid rgba(242,240,236,.18);font-family:var(--mono);font-size:10px;letter-spacing:.14em;text-transform:uppercase;opacity:.55}
+
+@media(max-width:1080px){
+  .hero-grid{grid-template-columns:1fr}.hero-grid>*{border-right:0;border-bottom:1px solid var(--rule);padding-inline:0}
+  .row{grid-template-columns:56px 1fr;gap:12px}.row p,.r-tags{grid-column:2}.r-tags{justify-content:flex-start;margin-top:12px}
+  .stats,.proc{grid-template-columns:repeat(2,1fr)}
+  .work{grid-template-columns:repeat(2,1fr)}
+  .qs{grid-template-columns:1fr}
+}
+@media(max-width:680px){
+  .nav-l,.nbtn{display:none}.burger{display:block;margin-left:auto}
+  .stats,.proc{grid-template-columns:1fr}.work{grid-template-columns:1fr}
+  .f-g{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<header class="hdr"><div class="wrap nav">
+  <a class="logo" href="#top">Tercia<b></b></a>
+  <nav class="nav-l"><a href="#services">Услуги</a><a href="#work">Работы</a><a href="#process">Процесс</a><a href="#stats">Цифры</a><a href="#contacts">Контакты</a></nav>
+  <a href="#cta" class="nbtn">Обсудить →</a>
+  <button class="burger">Меню</button>
+</div></header>
+
+<div class="tick"><div class="tick-t">
+  <span>Свободно 3 слота на октябрь</span><span>Средний срок запуска — 7 дней</span><span>120+ проектов</span><span>Работаем по договору</span>
+  <span>Свободно 3 слота на октябрь</span><span>Средний срок запуска — 7 дней</span><span>120+ проектов</span><span>Работаем по договору</span>
+</div></div>
+
+<main id="top">
+<section class="hero"><div class="wrap">
+  <div class="hero-top"><span>Tercia — агентство цифровых продуктов</span><span>Est. 2023 · Сочи / Remote</span><span>Портфолио 2026</span></div>
+  <h1>ЦИФРОВЫЕ<br><span class="stroke">ПРОДУКТЫ</span><br>ПОД <span class="red">КЛЮЧ</span>
+    <svg class="slash" viewBox="0 0 240 80" fill="none" stroke="currentColor" stroke-width="7" stroke-linecap="round">
+      <path d="M8 60C60 20 96 66 150 24"/><path d="M22 72C74 32 112 74 166 34"/>
+    </svg>
+  </h1>
+  <div class="hero-grid">
+    <div>
+      <div class="hg-lab">Кто мы</div>
+      <p>Сайты, приложения, Telegram-боты, AI-автоматизация и контент. Одна команда ведёт продукт от первой гипотезы до стабильной выручки.</p>
+      <div class="acts"><a href="#cta" class="btn btn-fill">Обсудить проект</a><a href="#work" class="btn btn-out">Смотреть работы</a></div>
+    </div>
+    <div class="mini-stats">
+      <div class="hg-lab" style="margin-bottom:6px">Цифры</div>
+      <div><span>Проектов</span><b>120+</b></div>
+      <div><span>Запуск</span><b>7 дн.</b></div>
+      <div><span>Поддержка</span><b>24/7</b></div>
+      <div style="border:0"><span>Рост заявок</span><b>×2</b></div>
+    </div>
+    <div><div class="portrait"><div class="halftone"></div><div class="big">ИДЕЯ<br>ПРОДУКТ<br>РОСТ</div></div></div>
+  </div>
+</div></section>
+
+<section class="sec" id="services"><div class="wrap">
+  <div class="sec-head">
+    <div><div class="kick">Услуги</div><h2>Что мы<br>делаем</h2></div>
+    <p>Шесть направлений. Берём проект целиком — или закрываем один участок, где горит.</p>
+  </div>
+  <div class="rows">
+    <div class="row"><div class="r-num">01</div><div class="r-t">Сайты<br>и лендинги</div><p>Продающие сайты от прототипа до запуска. Скорость, чистая аналитика и логика, которую вы понимаете без разработчика.</p><div class="r-tags"><span>Figma</span><span>Next.js</span><span>WordPress</span><span>A/B</span></div></div>
+    <div class="row"><div class="r-num">02</div><div class="r-t">Telegram-боты<br>и mini-app</div><p>Воронки, оплаты, личные кабинеты, CRM внутри мессенджера. Продажи и поддержка 24/7 без менеджера.</p><div class="r-tags"><span>Bot API</span><span>Mini App</span><span>Payments</span></div></div>
+    <div class="row"><div class="r-num">03</div><div class="r-t">Мобильные<br>приложения</div><p>iOS, Android и веб — от прототипа до релиза в сторах и первых активных пользователей.</p><div class="r-tags"><span>Swift</span><span>Kotlin</span><span>React Native</span></div></div>
+    <div class="row"><div class="r-num">04</div><div class="r-t">AI-<br>автоматизация</div><p>n8n, CRM, чаты и таблицы в одном контуре. Снимаем с людей рутину, которая съедает половину дня.</p><div class="r-tags"><span>n8n</span><span>LLM-агенты</span><span>API</span></div></div>
+    <div class="row"><div class="r-num">05</div><div class="r-t">Shopify<br>и e-com</div><p>Магазин под ключ: дизайн, каталог, оплаты, доставка, аналитика и связка со складом.</p><div class="r-tags"><span>Shopify</span><span>Liquid</span><span>Аналитика</span></div></div>
+    <div class="row"><div class="r-num">06</div><div class="r-t">Контент<br>и продакшн</div><p>Сценарий, съёмка, монтаж, упаковка соцсетей. Рилсы пачками — по контент-плану, а не по вдохновению.</p><div class="r-tags"><span>Reels</span><span>Съёмка</span><span>Монтаж</span></div></div>
+  </div>
+</div></section>
+
+<section class="sec" id="stats" style="padding-block:0"><div class="wrap"><div class="stats">
+  <div><div class="st-n red">120+</div><div class="st-l">проектов запущено</div></div>
+  <div><div class="st-n">7</div><div class="st-l">дней до первого релиза</div></div>
+  <div><div class="st-n">24/7</div><div class="st-l">боты и поддержка</div></div>
+  <div><div class="st-n red">×2</div><div class="st-l">рост заявок в среднем</div></div>
+</div></div></section>
+
+<section class="sec" id="process"><div class="wrap">
+  <div class="sec-head"><div><div class="kick">Процесс</div><h2>Как мы<br>работаем</h2></div><p>Прозрачно, по неделям. Вы всегда знаете, что происходит и сколько осталось.</p></div>
+  <div class="proc">
+    <div><div class="p-n">01</div><div class="p-t">Бриф</div><p>Цели, аудитория, деньги. Фиксируем результат и сроки в одном документе.</p></div>
+    <div><div class="p-n">02</div><div class="p-t">Дизайн</div><p>Прототип и визуал. Согласуем структуру до первой строчки кода.</p></div>
+    <div><div class="p-n">03</div><div class="p-t">Сборка</div><p>Код, интеграции, тесты. Демо каждую неделю и доступ к доске задач.</p></div>
+    <div><div class="p-n">04</div><div class="p-t">Запуск</div><p>Публикуем, обучаем команду, остаёмся на поддержке и растим метрики.</p></div>
+  </div>
+</div></section>
+
+<section class="sec" id="work"><div class="wrap">
+  <div class="sec-head"><div><div class="kick">Работы</div><h2>Избранное</h2></div><a href="#contacts" class="btn btn-out">Все 23 проекта →</a></div>
+  <div class="work">
+    <div class="w"><div class="w-img"><div class="t">LOYAL<br>TY</div></div><div class="w-meta"><div><div class="w-t">Mini-app лояльности</div><div class="w-c">Telegram · 12 400 карт</div></div><span>↗</span></div></div>
+    <div class="w"><div class="w-img"><div class="t">FUNNEL</div></div><div class="w-meta"><div><div class="w-t">Бот-воронка школы</div><div class="w-c">Автопродажи · ×2,4</div></div><span>↗</span></div></div>
+    <div class="w"><div class="w-img"><div class="t">DELI<br>VERY</div></div><div class="w-meta"><div><div class="w-t">Сервис доставки</div><div class="w-c">iOS + Android</div></div><span>↗</span></div></div>
+    <div class="w"><div class="w-img"><div class="t">TABLE</div></div><div class="w-meta"><div><div class="w-t">Сайт ресторана</div><div class="w-c">WordPress · бронь</div></div><span>↗</span></div></div>
+    <div class="w"><div class="w-img"><div class="t">PIPE<br>LINE</div></div><div class="w-meta"><div><div class="w-t">Lead pipeline</div><div class="w-c">n8n · −70% рутины</div></div><span>↗</span></div></div>
+    <div class="w"><div class="w-img"><div class="t">GLOW</div></div><div class="w-meta"><div><div class="w-t">Магазин косметики</div><div class="w-c">Shopify · 340 SKU</div></div><span>↗</span></div></div>
+    <div class="w"><div class="w-img"><div class="t">FIT</div></div><div class="w-meta"><div><div class="w-t">Клуб фитнеса</div><div class="w-c">WordPress · абонементы</div></div><span>↗</span></div></div>
+    <div class="w"><div class="w-img"><div class="t">HABIT</div></div><div class="w-meta"><div><div class="w-t">Mini-app привычек</div><div class="w-c">Telegram · retention 41%</div></div><span>↗</span></div></div>
+  </div>
+</div></section>
+
+<section class="sec"><div class="wrap">
+  <div class="sec-head"><div><div class="kick">Отзывы</div><h2>Говорят<br>клиенты</h2></div></div>
+  <div class="qs">
+    <div class="q"><div class="m">“</div><p>Сайт, бот и автоматизация за две недели. Заявки выросли вдвое, рутину с менеджеров сняли полностью.</p><div class="who">Анна Кот · основатель, cosmetics-бренд</div></div>
+    <div class="q"><div class="m">“</div><p>Впервые агентство говорило со мной цифрами, а не «концепциями». Каждую пятницу — демо и понятный отчёт.</p><div class="who">Дмитрий Л. · CEO, сервис доставки</div></div>
+    <div class="q"><div class="m">“</div><p>Забрали на себя весь техблок. Мы наконец занимаемся продуктом, а не тем, почему упала интеграция.</p><div class="who">Марина С. · директор онлайн-школы</div></div>
+  </div>
+  <div class="clients" style="margin-top:0">
+    <div>Shopify</div><div>Telegram</div><div>n8n</div><div>WordPress</div><div>Figma</div><div>Next.js</div><div>Supabase</div><div>OpenAI</div>
+  </div>
+</div></section>
+
+<section class="cta" id="cta"><div class="wrap cta-in">
+  <div><div class="kick">Свободны 3 слота</div><h2>СДЕЛАЕМ<br>ЧТО-ТО <em>СИЛЬНОЕ</em></h2></div>
+  <div><p style="opacity:.7;max-width:32ch;margin-bottom:20px">Бесплатная консультация и план запуска за 24 часа. Отвечаем в течение часа.</p>
+  <a href="https://t.me/tercia_it" class="btn">Написать в Telegram →</a></div>
+</div></section>
+</main>
+
+<footer class="ftr" id="contacts"><div class="wrap">
+  <div class="f-g">
+    <div><a class="logo" href="#top">Tercia<b></b></a><p class="about">Агентство цифровых продуктов полного цикла. Идея, продукт, рост — три такта одной команды.</p></div>
+    <div><div class="f-h">Услуги</div><a href="#services">Сайты</a><a href="#services">Приложения</a><a href="#services">Боты</a><a href="#services">Автоматизация</a><a href="#services">Shopify</a></div>
+    <div><div class="f-h">Агентство</div><a href="#work">Работы</a><a href="#process">Процесс</a><a href="#stats">Цифры</a><a href="#cta">Контакты</a></div>
+    <div><div class="f-h">Связь</div><a href="https://t.me/tercia_it">@tercia_it</a><a href="https://wa.me/79882716669">+7 988 271 66 69</a><a href="mailto:terciaagency@gmail.com">terciaagency@gmail.com</a></div>
+  </div>
+  <div class="f-b"><span>© 2026 Tercia</span><span>tercia.studio</span><span>Направление 02 · PRESS</span></div>
+</div></footer>
+</body>
+</html>

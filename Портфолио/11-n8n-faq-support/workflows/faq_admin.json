@@ -1,0 +1,232 @@
+{
+  "name": "FAQ Admin Bot",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": ["message"],
+        "additionalFields": {}
+      },
+      "id": "11110000-aaaa-4001-8001-admintrigger001",
+      "name": "Admin Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Разбор админ-команды и проверка прав.\nconst ADMIN_ID = 123456789; // <-- ЗАМЕНИТЕ на ваш Telegram user id (числом)\n\nconst msg = $json.message || {};\nconst text = (msg.text || '').trim();\nconst fromId = msg.from ? msg.from.id : null;\nconst isAdmin = String(fromId) === String(ADMIN_ID);\n\nlet command = 'help';\nlet question = '';\nlet answer = '';\n\nif (/^\\/add\\b/i.test(text)) {\n  command = 'add';\n  const payload = text.replace(/^\\/add\\s*/i, '');\n  const parts = payload.split('|');\n  question = (parts[0] || '').trim();\n  answer = (parts[1] || '').trim();\n} else if (/^\\/unanswered\\b/i.test(text)) {\n  command = 'unanswered';\n}\n\nreturn [{ json: {\n  isAdmin,\n  command,\n  question,\n  answer,\n  chat_id: msg.chat ? msg.chat.id : null,\n  fromId\n} }];"
+      },
+      "id": "22220000-bbbb-4002-8002-parsecommand002",
+      "name": "Parse Command",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "conditions": [
+            {
+              "id": "cond-admin-1",
+              "leftValue": "={{ $json.isAdmin }}",
+              "rightValue": "={{ true }}",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "33330000-cccc-4003-8003-isadmincheck003",
+      "name": "Is Admin?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [680, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "⛔ Нет доступа. Эта команда доступна только владельцу.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "44440000-dddd-4004-8004-accessdenied004",
+      "name": "Access Denied",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [900, 460]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "conditions": [
+                  {
+                    "id": "rule-add",
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "add",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "add"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "conditions": [
+                  {
+                    "id": "rule-unanswered",
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "unanswered",
+                    "operator": { "type": "string", "operation": "equals" }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "outputKey": "unanswered"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "55550000-eeee-4005-8005-commandswitch05",
+      "name": "Route Command",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [900, 220]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO faq (question, answer, lang)\nVALUES ($1, $2, 'ru')\nRETURNING id;",
+        "options": {
+          "queryReplacement": "={{ $json.question }}, {{ $json.answer }}"
+        }
+      },
+      "id": "66660000-ffff-4006-8006-insertfaqrow006",
+      "name": "Insert FAQ",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1120, 120]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Parse Command').item.json.chat_id }}",
+        "text": "=✅ Добавлено в базу знаний (id {{ $json.id }}).",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "77770000-0001-4007-8007-confirmadd0007",
+      "name": "Confirm Added",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1340, 120]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, question, coalesce(username,'—') AS username,\n       to_char(created_at, 'YYYY-MM-DD HH24:MI') AS created\nFROM unanswered\nWHERE status = 'new'\nORDER BY created_at DESC\nLIMIT 20;",
+        "options": {}
+      },
+      "id": "88880000-0002-4008-8008-selectunansw008",
+      "name": "Get Unanswered",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1120, 300],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json).filter(r => r && r.id);\nconst chat_id = $('Parse Command').first().json.chat_id;\n\nlet text;\nif (!rows.length) {\n  text = 'Нет неотвеченных вопросов 🎉';\n} else {\n  text = '📋 Неотвеченные вопросы:\\n\\n' + rows\n    .map(r => `#${r.id} [${r.created}] @${r.username}\\n${r.question}`)\n    .join('\\n\\n');\n}\n\nreturn [{ json: { chat_id, text } }];"
+      },
+      "id": "99990000-0003-4009-8009-formatlist0009",
+      "name": "Format List",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1340, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "aaaa0000-0004-400a-800a-sendlist000010",
+      "name": "Send Unanswered List",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1560, 300]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "🛠 Админ-команды:\n\n/add вопрос | ответ — добавить запись в базу знаний\n/unanswered — показать неотвеченные вопросы\n\nПример:\n/add Какой у вас график работы? | Мы работаем пн-пт с 9:00 до 18:00.",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "id": "bbbb0000-0005-400b-800b-sendhelp000011",
+      "name": "Send Help",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1120, 460]
+    }
+  ],
+  "connections": {
+    "Admin Telegram Trigger": {
+      "main": [[{ "node": "Parse Command", "type": "main", "index": 0 }]]
+    },
+    "Parse Command": {
+      "main": [[{ "node": "Is Admin?", "type": "main", "index": 0 }]]
+    },
+    "Is Admin?": {
+      "main": [
+        [{ "node": "Route Command", "type": "main", "index": 0 }],
+        [{ "node": "Access Denied", "type": "main", "index": 0 }]
+      ]
+    },
+    "Route Command": {
+      "main": [
+        [{ "node": "Insert FAQ", "type": "main", "index": 0 }],
+        [{ "node": "Get Unanswered", "type": "main", "index": 0 }],
+        [{ "node": "Send Help", "type": "main", "index": 0 }]
+      ]
+    },
+    "Insert FAQ": {
+      "main": [[{ "node": "Confirm Added", "type": "main", "index": 0 }]]
+    },
+    "Get Unanswered": {
+      "main": [[{ "node": "Format List", "type": "main", "index": 0 }]]
+    },
+    "Format List": {
+      "main": [[{ "node": "Send Unanswered List", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {}
+}

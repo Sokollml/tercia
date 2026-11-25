@@ -1,0 +1,286 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Tercia — цифровые продукты под ключ</title>
+<meta name="description" content="Tercia — IT-агентство полного цикла. Сайты, приложения, Telegram-боты, mini-app, автоматизация и контент. Одна команда — от идеи до запуска.">
+<meta name="theme-color" content="#0A0A0F">
+
+<!-- Open Graph -->
+<meta property="og:type" content="website">
+<meta property="og:title" content="Tercia — цифровые продукты под ключ">
+<meta property="og:description" content="Сайты, приложения, Telegram-боты, автоматизация и контент. Одна команда — от идеи до запуска.">
+<meta property="og:site_name" content="Tercia">
+
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+<!-- ============ Sparkle logo mark (reused everywhere) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <g id="spk">
+      <path d="M12 0C12.35 10.2 13.5 11.55 21 12C13.5 12.45 12.35 13.8 12 24C11.65 13.8 10.5 12.45 3 12C10.5 11.55 11.65 10.2 12 0Z" transform="translate(19 22) scale(2.8)"/>
+      <path d="M12 0C12.35 10.2 13.5 11.55 21 12C13.5 12.45 12.35 13.8 12 24C11.65 13.8 10.5 12.45 3 12C10.5 11.55 11.65 10.2 12 0Z" transform="translate(60 12) scale(1.4)"/>
+      <path d="M12 0C12.35 10.2 13.5 11.55 21 12C13.5 12.45 12.35 13.8 12 24C11.65 13.8 10.5 12.45 3 12C10.5 11.55 11.65 10.2 12 0Z" transform="translate(16 73) scale(1.62)"/>
+    </g>
+  </defs>
+</svg>
+
+<!-- ============ Contact icons (reused in footer) ============ -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <path id="ic-tg" d="M9.78 18.65l.28-4.23 7.68-6.92c.34-.31-.07-.46-.52-.19L7.74 13.3 3.64 12c-.88-.25-.89-.86.2-1.3l15.97-6.16c.73-.33 1.43.18 1.15 1.3l-2.72 12.81c-.19.91-.74 1.13-1.5.71L12.6 16.3l-1.99 1.93c-.23.23-.42.42-.83.42z"/>
+    <path id="ic-wa" d="M17.47 14.38c-.29-.15-1.7-.84-1.96-.93-.26-.1-.45-.15-.64.15-.19.29-.74.93-.9 1.12-.17.19-.33.22-.62.07-.29-.15-1.22-.45-2.32-1.44-.86-.76-1.44-1.7-1.6-1.99-.17-.29-.02-.45.13-.6.13-.13.29-.34.44-.51.15-.17.19-.29.29-.48.1-.19.05-.36-.02-.51-.08-.15-.64-1.55-.88-2.12-.23-.55-.47-.48-.64-.49h-.55c-.19 0-.51.07-.77.36-.26.29-1.01.99-1.01 2.42 0 1.43 1.04 2.81 1.18 3 .15.19 2.05 3.13 4.96 4.39.69.3 1.23.48 1.65.61.69.22 1.32.19 1.82.12.56-.08 1.7-.7 1.94-1.36.24-.67.24-1.24.17-1.36-.07-.12-.26-.19-.55-.34zM12 2C6.48 2 2 6.48 2 12c0 1.77.46 3.43 1.27 4.87L2 22l5.25-1.38A9.96 9.96 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2zm0 18c-1.6 0-3.09-.47-4.34-1.28l-.31-.2-3.12.82.83-3.04-.2-.32A7.94 7.94 0 0 1 4 12c0-4.41 3.59-8 8-8s8 3.59 8 8-3.59 8-8 8z"/>
+    <path id="ic-mail" d="M20 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+  </defs>
+</svg>
+
+<!-- ============ Header ============ -->
+<header class="site-header">
+  <div class="wrap nav">
+    <div class="brand">
+      <a class="brand-logo" href="#top" aria-label="Tercia — на главную">
+        <svg class="sparkle" viewBox="0 0 120 120" fill="#D3FB52" aria-hidden="true"><use href="#spk"/></svg>
+        <span class="brand-name">Tercia</span>
+      </a>
+      <span class="brand-sep" aria-hidden="true"></span>
+      <span class="brand-tag" data-i18n-html="brand.tag">IT-агентство<br>полного цикла</span>
+    </div>
+
+    <nav class="nav-links" aria-label="Основная навигация">
+      <a href="#services" data-i18n="nav.services">Услуги</a>
+      <a href="#cases" data-i18n="nav.cases">Кейсы</a>
+      <a href="#process" data-i18n="nav.process">Процесс</a>
+      <a href="#stats" data-i18n="nav.stats">Цифры</a>
+      <a href="#contacts" data-i18n="nav.contacts">Контакты</a>
+    </nav>
+
+    <div class="nav-right">
+      <div class="lang-switch" role="group" aria-label="Язык / Language">
+        <button type="button" data-lang="ru">RU</button>
+        <button type="button" data-lang="en">EN</button>
+        <button type="button" data-lang="zh">中</button>
+      </div>
+      <a href="#cta" class="btn btn-acid nav-cta" data-i18n="nav.cta">Обсудить проект</a>
+    </div>
+
+    <button class="nav-toggle" aria-label="Меню" aria-expanded="false" aria-controls="mobile-menu">
+      <span></span><span></span><span></span>
+    </button>
+  </div>
+
+  <!-- mobile dropdown -->
+  <div class="mobile-menu" id="mobile-menu">
+    <a href="#services" data-i18n="nav.services">Услуги</a>
+    <a href="#cases" data-i18n="nav.cases">Кейсы</a>
+    <a href="#process" data-i18n="nav.process">Процесс</a>
+    <a href="#stats" data-i18n="nav.stats">Цифры</a>
+    <a href="#contacts" data-i18n="nav.contacts">Контакты</a>
+    <a href="#cta" class="btn btn-acid" data-i18n="nav.cta">Обсудить проект</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <!-- ============ Hero ============ -->
+  <section class="hero">
+    <div class="blob blob-violet" aria-hidden="true"></div>
+    <div class="blob blob-acid" aria-hidden="true"></div>
+    <div class="wrap">
+      <div class="hero-inner">
+        <h1 data-i18n-html="hero.h1">Цифровые<br>продукты <span class="accent">под ключ</span></h1>
+        <p class="hero-sub" data-i18n="hero.sub">Сайты, приложения, Telegram-боты, автоматизация и контент. Одна команда — от идеи до запуска.</p>
+        <div class="hero-actions">
+          <a href="#cta" class="btn btn-acid" data-i18n="hero.cta">Обсудить проект →</a>
+          <a href="#cases" class="btn btn-ghost" data-i18n="hero.cases">Смотреть кейсы</a>
+        </div>
+        <div class="hero-stats">
+          <div><div class="stat-num">120+</div><div class="stat-label" data-i18n="hero.stat1">проектов запущено</div></div>
+          <div class="divider" aria-hidden="true"></div>
+          <div><div class="stat-num" data-i18n="hero.stat2num">7 дней</div><div class="stat-label" data-i18n="hero.stat2">средний срок старта</div></div>
+          <div class="divider" aria-hidden="true"></div>
+          <div><div class="stat-num">24/7</div><div class="stat-label" data-i18n="hero.stat3">боты и поддержка</div></div>
+        </div>
+      </div>
+    </div>
+    <svg class="hero-spark s1" viewBox="0 0 120 120" aria-hidden="true"><use href="#spk"/></svg>
+    <svg class="hero-spark s2" viewBox="0 0 120 120" aria-hidden="true"><use href="#spk"/></svg>
+  </section>
+
+  <!-- ============ Marquee ============ -->
+  <div class="marquee" aria-hidden="true">
+    <div class="marquee-track">
+      <span class="disp" data-i18n="marquee">САЙТЫ&nbsp;&nbsp;✦&nbsp;&nbsp;ПРИЛОЖЕНИЯ&nbsp;&nbsp;✦&nbsp;&nbsp;TELEGRAM-БОТЫ&nbsp;&nbsp;✦&nbsp;&nbsp;MINI-APP&nbsp;&nbsp;✦&nbsp;&nbsp;АВТОМАТИЗАЦИЯ&nbsp;&nbsp;✦&nbsp;&nbsp;SHOPIFY&nbsp;&nbsp;✦&nbsp;&nbsp;КОНТЕНТ&nbsp;&nbsp;✦&nbsp;&nbsp;</span>
+      <span class="disp" data-i18n="marquee">САЙТЫ&nbsp;&nbsp;✦&nbsp;&nbsp;ПРИЛОЖЕНИЯ&nbsp;&nbsp;✦&nbsp;&nbsp;TELEGRAM-БОТЫ&nbsp;&nbsp;✦&nbsp;&nbsp;MINI-APP&nbsp;&nbsp;✦&nbsp;&nbsp;АВТОМАТИЗАЦИЯ&nbsp;&nbsp;✦&nbsp;&nbsp;SHOPIFY&nbsp;&nbsp;✦&nbsp;&nbsp;КОНТЕНТ&nbsp;&nbsp;✦&nbsp;&nbsp;</span>
+    </div>
+  </div>
+
+  <!-- ============ Services (bento) ============ -->
+  <section class="section wrap" id="services">
+    <div class="section-head">
+      <div>
+        <div class="kicker" data-i18n="services.kicker">Услуги</div>
+        <h2 class="h2" data-i18n-html="services.h2">Всё для бизнеса<br>в диджитал</h2>
+      </div>
+      <p class="lead" data-i18n="services.lead">Шесть направлений и одна команда, которая ведёт проект от старта до результата.</p>
+    </div>
+
+    <div class="bento">
+      <article class="card card-feature">
+        <div class="card-glow" aria-hidden="true"></div>
+        <svg class="sparkle" viewBox="0 0 120 120" aria-hidden="true"><use href="#spk"/></svg>
+        <div>
+          <div class="card-title" data-i18n="svc.1.t">Сайты и лендинги</div>
+          <p data-i18n="svc.1.p">Продающие сайты от прототипа до запуска — быстро, без воды и на понятной вам логике.</p>
+        </div>
+      </article>
+
+      <article class="card card-half">
+        <svg class="sparkle" viewBox="0 0 120 120" aria-hidden="true"><use href="#spk"/></svg>
+        <div>
+          <div class="card-title" data-i18n="svc.2.t">Telegram-боты · mini-app</div>
+          <p data-i18n="svc.2.p">Боты, воронки и mini-apps — продажи и поддержка 24/7.</p>
+        </div>
+      </article>
+
+      <article class="card card-half">
+        <svg class="sparkle" viewBox="0 0 120 120" aria-hidden="true"><use href="#spk"/></svg>
+        <div>
+          <div class="card-title" data-i18n="svc.3.t">Приложения</div>
+          <p data-i18n="svc.3.p">iOS, Android и веб — от прототипа до релиза в сторах.</p>
+        </div>
+      </article>
+
+      <article class="card card-third">
+        <svg class="sparkle" viewBox="0 0 120 120" aria-hidden="true"><use href="#spk"/></svg>
+        <div>
+          <div class="card-title" data-i18n="svc.4.t">Автоматизация</div>
+          <p data-i18n="svc.4.p">Связываем CRM, чаты и сервисы.</p>
+        </div>
+      </article>
+
+      <article class="card card-third">
+        <svg class="sparkle" viewBox="0 0 120 120" aria-hidden="true"><use href="#spk"/></svg>
+        <div>
+          <div class="card-title" data-i18n="svc.5.t">Shopify</div>
+          <p data-i18n="svc.5.p">Магазины: дизайн, товары, оплаты.</p>
+        </div>
+      </article>
+
+      <article class="card card-third card-acid">
+        <svg class="sparkle" viewBox="0 0 120 120" aria-hidden="true"><use href="#spk"/></svg>
+        <div>
+          <div class="card-title" data-i18n="svc.6.t">Контент и рилсы</div>
+          <p data-i18n="svc.6.p">Сценарий, съёмка, монтаж — пачками.</p>
+        </div>
+      </article>
+    </div>
+  </section>
+
+  <!-- ============ Stats band ============ -->
+  <section class="band" id="stats">
+    <div class="wrap band-grid">
+      <div><div class="band-num">6</div><div class="band-label" data-i18n="band.1">услуг — одна команда</div></div>
+      <div><div class="band-num" data-i18n="band.2num">7 дней</div><div class="band-label" data-i18n="band.2">до запуска проекта</div></div>
+      <div><div class="band-num">24/7</div><div class="band-label" data-i18n="band.3">боты и поддержка</div></div>
+      <div><div class="band-num">×2</div><div class="band-label" data-i18n="band.4">рост заявок в среднем</div></div>
+    </div>
+  </section>
+
+  <!-- ============ Process ============ -->
+  <section class="section wrap" id="process">
+    <div class="section-head center">
+      <div class="kicker" data-i18n="process.kicker">Процесс</div>
+      <h2 class="h2" data-i18n="process.h2">Как мы работаем</h2>
+    </div>
+    <div class="steps">
+      <div class="step">
+        <div class="step-num">01</div>
+        <div class="step-title" data-i18n="step.1.t">Бриф</div>
+        <p data-i18n="step.1.p">Разбираем задачу, цели и сроки. Фиксируем результат.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">02</div>
+        <div class="step-title" data-i18n="step.2.t">Дизайн</div>
+        <p data-i18n="step.2.p">Прототип и визуал. Согласуем до строчки кода.</p>
+      </div>
+      <div class="step">
+        <div class="step-num">03</div>
+        <div class="step-title" data-i18n="step.3.t">Сборка</div>
+        <p data-i18n="step.3.p">Разработка, интеграции и тесты. Прозрачные апдейты.</p>
+      </div>
+      <div class="step filled">
+        <div class="step-num">04</div>
+        <div class="step-title" data-i18n="step.4.t">Запуск</div>
+        <p data-i18n="step.4.p">Публикуем, обучаем команду и остаёмся на поддержке.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- ============ Final CTA ============ -->
+  <section class="cta" id="cta">
+    <div class="cta-glow" aria-hidden="true"></div>
+    <div class="wrap cta-inner">
+      <svg class="sparkle" viewBox="0 0 120 120" aria-hidden="true"><use href="#spk"/></svg>
+      <h2 data-i18n="cta.h2">Запустим ваш проект</h2>
+      <p class="cta-sub" data-i18n="cta.sub">Бесплатная консультация и план запуска за 24 часа.</p>
+      <a href="https://t.me/tercia_it" class="btn btn-acid" data-i18n="cta.btn">Обсудить проект →</a>
+    </div>
+  </section>
+
+</main>
+
+<!-- ============ Footer ============ -->
+<footer class="site-footer" id="contacts">
+  <div class="wrap">
+    <div class="footer-grid">
+      <div class="footer-about">
+        <div class="footer-brand">
+          <svg class="sparkle" viewBox="0 0 120 120" aria-hidden="true"><use href="#spk"/></svg>
+          <span class="brand-name">Tercia</span>
+        </div>
+        <p data-i18n="footer.about">IT-агентство полного цикла. Весь диджитал — под одной звездой.</p>
+      </div>
+      <div class="footer-cols">
+        <nav class="footer-col" aria-label="Услуги">
+          <span class="col-head" data-i18n="footer.services">Услуги</span>
+          <a href="#services" data-i18n="footer.sites">Сайты</a>
+          <a href="#services" data-i18n="footer.apps">Приложения</a>
+          <a href="#services" data-i18n="footer.bots">Боты</a>
+          <a href="#services">Shopify</a>
+        </nav>
+        <div class="footer-col">
+          <span class="col-head" data-i18n="footer.contacts">Контакты</span>
+          <a class="contact-link" href="https://t.me/tercia_it" target="_blank" rel="noopener">
+            <svg class="contact-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-tg"/></svg>
+            <span>@tercia_it</span>
+          </a>
+          <a class="contact-link" href="https://wa.me/79882716669" target="_blank" rel="noopener">
+            <svg class="contact-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-wa"/></svg>
+            <span>+7 988 271 66 69</span>
+          </a>
+          <a class="contact-link" href="mailto:terciaagency@gmail.com">
+            <svg class="contact-ic" viewBox="0 0 24 24" aria-hidden="true"><use href="#ic-mail"/></svg>
+            <span>terciaagency@gmail.com</span>
+          </a>
+        </div>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© <span id="year">2026</span> Tercia. <span data-i18n="footer.rights">Все права защищены.</span></span>
+      <span class="mono">tercia.studio</span>
+    </div>
+  </div>
+</footer>
+
+<script src="script.js"></script>
+</body>
+</html>

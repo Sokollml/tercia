@@ -1,0 +1,35 @@
+# Environment
+.env
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+.eggs/
+.venv/
+venv/
+env/
+.Python
+
+# Databases
+*.db
+*.sqlite
+*.sqlite3
+booking.db
+
+# Test / tooling
+.pytest_cache/
+.mypy_cache/
+.coverage
+htmlcov/
+
+# OS / editor
+.DS_Store
+._*
+.idea/
+.vscode/
+
+# Docs media leftovers (keep demo.gif tracked though)
+docs/*.tmp

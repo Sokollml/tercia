@@ -1,0 +1,47 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: ${DB_USER:-booking}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-booking}
+      POSTGRES_DB: ${DB_NAME:-booking}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-booking}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  bot:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      MASTER_IDS: ${MASTER_IDS}
+      TZ: ${TZ:-Europe/Moscow}
+      DEFAULT_LANG: ${DEFAULT_LANG:-ru}
+      MODE: ${MODE:-webhook}
+      WEBHOOK_HOST: ${WEBHOOK_HOST}
+      WEBHOOK_PATH: ${WEBHOOK_PATH:-/webhook}
+      WEBHOOK_SECRET: ${WEBHOOK_SECRET}
+      WEBAPP_HOST: 0.0.0.0
+      WEBAPP_PORT: ${WEBAPP_PORT:-8080}
+      DB_DRIVER: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: ${DB_USER:-booking}
+      DB_PASSWORD: ${DB_PASSWORD:-booking}
+      DB_NAME: ${DB_NAME:-booking}
+      RATE_LIMIT: ${RATE_LIMIT:-5}
+      RATE_WINDOW: ${RATE_WINDOW:-3.0}
+    ports:
+      # Expose the webhook port (put a reverse proxy / TLS in front in prod).
+      - "${WEBAPP_PORT:-8080}:8080"
+
+volumes:
+  pgdata:

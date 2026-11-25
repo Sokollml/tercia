@@ -1,0 +1,638 @@
+<!doctype html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Запуск Tercia</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap">
+
+</head>
+<body>
+<style>
+/* Дизайн-система Tercia: тёмная по умолчанию, светлая — производная */
+:root{
+  --bg:#0A0A0F; --panel:#14141B; --panel-2:#1B1B24; --sunk:#0C0C12;
+  --line:rgba(255,255,255,.09); --line-2:rgba(255,255,255,.055);
+  --fg:#F4F4F6; --muted:#B4B4BE; --muted-2:#8E8E98;
+  --acid:#D3FB52; --acid-ink:#0A0A0F; --acid-dim:rgba(211,251,82,.13);
+  --violet:#9B6BF5; --violet-dim:rgba(124,58,237,.16);
+  --warn:#FF8A6B; --warn-dim:rgba(255,138,107,.12);
+  --shadow:0 2px 0 rgba(0,0,0,.3), 0 24px 60px -40px rgba(0,0,0,.9);
+  --radius:22px;
+}
+@media (prefers-color-scheme: light){
+  :root:not([data-theme="dark"]){
+    --bg:#F6F7F1; --panel:#FFFFFF; --panel-2:#EFF1E7; --sunk:#E9EBE0;
+    --line:rgba(10,10,15,.12); --line-2:rgba(10,10,15,.07);
+    --fg:#12140F; --muted:#4E5247; --muted-2:#6B7062;
+    --acid:#5C7A08; --acid-ink:#12140F; --acid-dim:rgba(211,251,82,.42);
+    --violet:#5B21B6; --violet-dim:rgba(124,58,237,.11);
+    --warn:#B3341A; --warn-dim:rgba(179,52,26,.09);
+    --shadow:0 1px 0 rgba(10,10,15,.05), 0 20px 44px -34px rgba(10,10,15,.55);
+  }
+}
+:root[data-theme="light"]{
+  --bg:#F6F7F1; --panel:#FFFFFF; --panel-2:#EFF1E7; --sunk:#E9EBE0;
+  --line:rgba(10,10,15,.12); --line-2:rgba(10,10,15,.07);
+  --fg:#12140F; --muted:#4E5247; --muted-2:#6B7062;
+  --acid:#5C7A08; --acid-ink:#12140F; --acid-dim:rgba(211,251,82,.42);
+  --violet:#5B21B6; --violet-dim:rgba(124,58,237,.11);
+  --warn:#B3341A; --warn-dim:rgba(179,52,26,.09);
+  --shadow:0 1px 0 rgba(10,10,15,.05), 0 20px 44px -34px rgba(10,10,15,.55);
+}
+
+*{box-sizing:border-box}
+body{
+  margin:0; background:var(--bg); color:var(--fg);
+  font-family:'Manrope',system-ui,-apple-system,sans-serif;
+  font-size:17px; line-height:1.62; -webkit-font-smoothing:antialiased;
+}
+.wrap{max-width:1120px;margin:0 auto;padding:0 clamp(20px,4vw,44px) 110px}
+p{margin:0 0 1em}
+a{color:var(--violet);text-decoration:underline;text-decoration-thickness:1px;text-underline-offset:3px}
+a:hover{color:var(--fg)}
+a:focus-visible{outline:2px solid var(--acid);outline-offset:3px;border-radius:3px}
+strong{font-weight:700;color:var(--fg)}
+code{font-family:ui-monospace,'SF Mono',Menlo,Consolas,monospace;font-size:.85em;background:var(--sunk);padding:.12em .42em;border-radius:5px;border:1px solid var(--line-2)}
+
+h1,h2,h3,h4,.disp{font-family:'Space Grotesk',system-ui,sans-serif}
+h2{font-size:clamp(30px,4.6vw,46px);line-height:1.02;margin:0;letter-spacing:-.02em;font-weight:700;text-wrap:balance}
+h3{font-size:clamp(21px,2.5vw,26px);line-height:1.18;margin:44px 0 12px;letter-spacing:-.01em;font-weight:600}
+h4{font-size:18px;margin:0 0 8px;font-weight:600;letter-spacing:-.01em}
+.kicker{font-size:11.5px;letter-spacing:.2em;text-transform:uppercase;color:var(--acid);font-weight:600;font-family:'Space Grotesk',sans-serif}
+
+/* header */
+header.top{padding:70px 0 34px}
+.logo{display:inline-flex;align-items:center;gap:10px;font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:19px;letter-spacing:-.01em}
+.logo i{width:9px;height:9px;background:var(--acid);border-radius:2px;transform:rotate(45deg);display:block}
+h1{
+  font-family:'Space Grotesk',sans-serif;
+  font-size:clamp(40px,8.4vw,86px);line-height:.98;letter-spacing:-.035em;
+  margin:26px 0 0;font-weight:700;text-wrap:balance;
+}
+h1 em{font-style:normal;color:var(--acid)}
+.lede{max-width:60ch;margin-top:22px;font-size:19.5px;color:var(--muted)}
+.stampline{display:flex;gap:10px;flex-wrap:wrap;margin-top:26px}
+.stamp{font-family:'Space Grotesk',sans-serif;font-size:12px;letter-spacing:.06em;text-transform:uppercase;color:var(--muted-2);border:1px solid var(--line);border-radius:999px;padding:6px 13px}
+
+/* nav */
+nav.jump{position:sticky;top:0;z-index:20;background:var(--bg);border-bottom:1px solid var(--line);margin:0 calc(clamp(20px,4vw,44px) * -1);padding:11px clamp(20px,4vw,44px);overflow-x:auto}
+nav.jump ul{display:flex;gap:4px;list-style:none;margin:0;padding:0;white-space:nowrap}
+nav.jump a{font-family:'Space Grotesk',sans-serif;font-size:13px;color:var(--muted-2);text-decoration:none;padding:7px 12px;border-radius:999px;display:block}
+nav.jump a:hover{color:var(--fg);background:var(--panel)}
+
+section{padding-top:66px;scroll-margin-top:58px}
+.head{border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:28px;display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+.head .note{font-size:13.5px;color:var(--muted-2);font-family:'Space Grotesk',sans-serif}
+.prose{max-width:72ch}
+
+/* verdict cards */
+.verdicts{display:grid;grid-template-columns:repeat(auto-fit,minmax(272px,1fr));gap:14px;margin:30px 0 0}
+.v{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px;box-shadow:var(--shadow);position:relative;overflow:hidden}
+.v .mark{font-family:'Space Grotesk',sans-serif;font-size:11px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;display:inline-block;padding:4px 10px;border-radius:999px;margin-bottom:14px}
+.v.no .mark{background:var(--warn-dim);color:var(--warn)}
+.v.yes .mark{background:var(--acid-dim);color:var(--acid)}
+.v.mid .mark{background:var(--violet-dim);color:var(--violet)}
+.v h4{font-size:20px}
+.v p{margin:0;font-size:15.5px;color:var(--muted)}
+
+/* callouts */
+.box{background:var(--panel);border:1px solid var(--line);border-left:3px solid var(--violet);border-radius:16px;padding:20px 22px;margin:22px 0;max-width:76ch}
+.box.acid{border-left-color:var(--acid);background:var(--panel)}
+.box.warn{border-left-color:var(--warn)}
+.box .kicker{display:block;margin-bottom:9px;color:var(--muted-2)}
+.box.acid .kicker{color:var(--acid)}
+.box.warn .kicker{color:var(--warn)}
+.box p:last-child{margin-bottom:0}
+
+/* tables */
+.tw{overflow-x:auto;margin:22px 0;border:1px solid var(--line);border-radius:16px;background:var(--panel)}
+table{border-collapse:collapse;width:100%;font-size:15px;min-width:560px}
+th,td{text-align:left;padding:12px 16px;border-bottom:1px solid var(--line-2);vertical-align:top}
+thead th{font-family:'Space Grotesk',sans-serif;font-size:11.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted-2);background:var(--sunk);font-weight:600}
+tbody tr:last-child td{border-bottom:none}
+td.nb{white-space:nowrap;font-variant-numeric:tabular-nums;font-family:'Space Grotesk',sans-serif}
+.ok{color:var(--acid);font-weight:600}
+.bad{color:var(--warn);font-weight:600}
+
+ul.t{max-width:74ch;padding-left:1.15em;margin:14px 0}
+ul.t li{margin-bottom:.5em}
+ul.t li::marker{color:var(--acid)}
+
+/* steps */
+ol.steps{list-style:none;counter-reset:s;margin:24px 0;padding:0;display:flex;flex-direction:column;gap:2px}
+ol.steps li{counter-increment:s;display:grid;grid-template-columns:52px 1fr;gap:18px;padding:16px 0;border-top:1px solid var(--line-2)}
+ol.steps li:last-child{border-bottom:1px solid var(--line-2)}
+ol.steps li::before{content:counter(s,decimal-leading-zero);font-family:'Space Grotesk',sans-serif;font-size:15px;font-weight:600;color:var(--acid);padding-top:2px}
+ol.steps p{margin:0;font-size:15.5px;color:var(--muted)}
+
+.split{display:grid;grid-template-columns:repeat(auto-fit,minmax(290px,1fr));gap:16px;margin:22px 0}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:var(--radius);padding:22px}
+.card p:last-child,.card ul:last-child{margin-bottom:0}
+.card.ac{border-color:rgba(211,251,82,.28)}
+.card.wr{border-color:rgba(255,138,107,.26)}
+
+.metrics{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px;margin:24px 0}
+.m{background:var(--sunk);border:1px solid var(--line-2);border-radius:16px;padding:17px}
+.m b{display:block;font-family:'Space Grotesk',sans-serif;font-size:29px;line-height:1;color:var(--acid);font-weight:700;letter-spacing:-.02em}
+.m span{display:block;margin-top:8px;font-size:13.5px;color:var(--muted-2);line-height:1.4}
+
+footer{margin-top:80px;padding-top:26px;border-top:1px solid var(--line);font-size:14px;color:var(--muted-2);max-width:76ch}
+
+@media (max-width:620px){
+  body{font-size:16px}
+  ol.steps li{grid-template-columns:1fr;gap:6px}
+  ol.steps li::before{font-size:13px}
+}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="wrap">
+
+<header class="top">
+  <span class="logo"><i></i>Tercia</span>
+  <h1>Как включить<br>агентство <em>сейчас</em></h1>
+  <p class="lede">Что делать с российским ИП, что делать с таджикской картой, где реально можно продавать, как раскручиваться без бюджета и где брать первые заказы. Все проверяемые факты — со ссылками, все непроверенные — помечены.</p>
+  <div class="stampline">
+    <span class="stamp">Составлено 24 августа 2026</span>
+    <span class="stamp">Не юридическая консультация</span>
+  </div>
+</header>
+
+<nav class="jump" aria-label="Разделы">
+  <ul>
+    <li><a href="#verdict">Три вердикта</a></li>
+    <li><a href="#money">Деньги</a></li>
+    <li><a href="#map">Где продавать</a></li>
+    <li><a href="#ai">Нейронка вместо QA</a></li>
+    <li><a href="#usa">Клиент из США</a></li>
+    <li><a href="#14">14 дней</a></li>
+    <li><a href="#channels">Каналы</a></li>
+    <li><a href="#platforms">Площадки</a></li>
+    <li><a href="#hunt">Поиск заказов</a></li>
+    <li><a href="#numbers">Цифры</a></li>
+    <li><a href="#never">Чего не делать</a></li>
+  </ul>
+</nav>
+
+<section id="verdict">
+  <div class="head">
+    <h2>Три вердикта</h2>
+    <span class="note">коротко, до подробностей</span>
+  </div>
+  <div class="verdicts">
+    <div class="v yes">
+      <span class="mark">Главный актив</span>
+      <h4>Российское ИП</h4>
+      <p>Это рабочий и полностью легальный маршрут для валютной выручки: УСН 6%, российского НДС при иностранном заказчике не возникает, постановка контракта на учёт нужна только от 10 млн ₽. Строить надо вокруг него.</p>
+    </div>
+    <div class="v no">
+      <span class="mark">Не решает задачу</span>
+      <h4>Карта Таджикистана</h4>
+      <p>Таджикистан вне ЕАЭС и вне автообмена с ФНС, поэтому послаблений не даёт, а обязанности создаёт. Поддержка страны платёжными сервисами не подтверждена ни одним источником. И карта физлица — это не способ принять оплату от компании.</p>
+    </div>
+    <div class="v mid">
+      <span class="mark">Работает в коридоре</span>
+      <h4>Нейронка вместо проверок</h4>
+      <p>Годится там, где ошибка видна снаружи: лендинг, бот, воркфлоу. Ломается там, где ошибка тихая: платежи, авторизация, персональные данные. Коридор надо выбрать заранее и из него не выходить.</p>
+    </div>
+  </div>
+</section>
+
+<section id="money">
+  <div class="head">
+    <h2>Платёжный контур</h2>
+    <span class="note">от него зависит вся остальная стратегия</span>
+  </div>
+
+  <h3>Почему таджикская карта не спасает</h3>
+  <div class="prose">
+    <p><strong>Таджикистан не входит в ЕАЭС.</strong> Более того, 6 февраля 2026 года министр иностранных дел республики заявил, что страна не рассматривает присоединение к ЕАЭС даже в статусе наблюдателя (<a href="https://www.interfax.ru/world/1071458">Интерфакс</a>). Все послабления российского валютного законодательства, привязанные к странам ЕАЭС, к нему не применяются.</p>
+    <p><strong>Таджикистана нет в перечне стран автоматического обмена налоговой информацией</strong> — ни в старой редакции приказа ФНС, ни среди стран, добавленных действующей редакцией от 14.10.2025 (<a href="https://www.consultant.ru/law/hotdocs/91892.html">КонсультантПлюс</a>). Это значит две вещи сразу. ФНС не увидит счёт автоматически — и одновременно на него не распространяется исключение, освобождающее от отчёта о движении средств по счетам в странах ЕАЭС и автообмена.</p>
+    <p><strong>Обязанности при этом возникают в полном объёме.</strong> Уведомить налоговую об открытии счёта нужно в течение месяца по форме КНД 1120107 (<a href="https://base.garant.ru/74226441/53f89421bbdaf741eb2d1ecc4ddb4c33/">приказ ФНС от 24.04.2020 № ЕД-7-14/272@</a>), дальше — отчёт о движении средств. Для индивидуального предпринимателя, в отличие от обычного физлица, и периодичность отчёта, и штрафы по статье 15.25 КоАП существенно строже — конкретные суммы уточняй у бухгалтера, я их первоисточником не подтвердил.</p>
+    <p><strong>Работает ли карта с платёжными сервисами — неизвестно.</strong> Поддержка Таджикистана со стороны Payoneer, Wise, Stripe и PayPal не подтверждается ни одним источником: всё, что находится по запросу, — сайты посредников, продающих «удалённое открытие счёта». Прежде чем строить на этом схему, проверь страну в официальных списках обслуживаемых стран самих сервисов.</p>
+    <div class="box warn">
+      <span class="kicker">И главное, что перекрывает всё остальное</span>
+      <p>Карта физлица — это не способ принять оплату от бизнеса. Компания платит по инвойсу на расчётный счёт, а не переводом на личную карту: ей нужен документ для своей бухгалтерии. Перевод на карту ломает и договор, и налоговый учёт, и — на переговорах с любым серьёзным клиентом — доверие. Карта пригодится для мелких личных расходов и подписок. Не для выручки.</p>
+    </div>
+  </div>
+
+  <h3>Российское ИП — вот что действительно работает</h3>
+  <div class="prose">
+    <p>Индивидуальный предприниматель может легально получать валюту от иностранных заказчиков на валютный счёт в российском банке. Это разрешённая валютная операция, и вокруг неё выстроена понятная процедура.</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Что</th><th>Как</th></tr></thead>
+      <tbody>
+        <tr><td class="nb">Налог</td><td>УСН «доходы» — <strong>6%</strong>. Лимит применения УСН — 490,5 млн ₽/год (ФЗ от 28.11.2025 № 425-ФЗ)</td></tr>
+        <tr><td class="nb">НДС</td><td>Обязанность платить НДС на УСН начинается с дохода <strong>20 млн ₽/год</strong> (2027 — 15 млн, 2028 — 10 млн). Отдельно: для IT-услуг иностранному заказчику место реализации определяется по месту деятельности покупателя, то есть российского НДС не возникает вовсе — <em>проверь формулировку ст. 148 НК с бухгалтером, ссылкой я её не подтвердил</em></td></tr>
+        <tr><td class="nb">Учёт контракта</td><td>Постановка на учёт в банке требуется только при экспортном контракте <strong>от 10 млн ₽</strong> (<a href="https://www.consultant.ru/document/cons_doc_LAW_282089/7b2be1ee0199adf4511f9a63fd92c0803c0f74dc/">Инструкция ЦБ № 181-И, п. 4.3</a>). До этого порога — не нужна</td></tr>
+        <tr><td class="nb">Документы</td><td>Контракт или инвойс-оферта, инвойс, акт о выполненных услугах. Банк запросит их и без постановки на учёт — конкретный перечень задаёт сам банк</td></tr>
+        <tr><td class="nb">Что нужно завести</td><td>Валютный счёт ИП в банке, который реально проводит входящие переводы, и англоязычные шаблоны: контракт, инвойс, акт</td></tr>
+      </tbody>
+    </table>
+  </div>
+  <div class="box">
+    <span class="kicker">Что я не проверил и что надо уточнить в банке</span>
+    <p>Какие именно российские банки в 2026 году проводят входящие валютные переводы для ИП, из каких стран и в каких валютах эти переводы реально доходят, комиссии и сроки. Это операционная информация, которая устаревает за недели, и публичные списки ей врут. Проверять звонком в два-три банка, а не поиском.</p>
+  </div>
+
+  <h3>Что действительно ограничивает — и что нет</h3>
+  <div class="prose">
+    <p>Здесь важно развести две вещи, которые постоянно путают.</p>
+    <p><strong>Санкционного запрета покупать IT-услуги у российских исполнителей нет.</strong> Запрет OFAC, вступивший в силу в сентябре 2024, направлен в одну сторону: американским лицам нельзя <em>оказывать</em> IT-услуги российским (<a href="https://www.millerchevalier.com/publication/trade-compliance-flash-ofac-announces-prohibitions-provision-certain-it-and-software">Miller &amp; Chevalier</a>). В 20-м пакете ЕС от апреля 2026 ограничения тоже секторальные — кибербезопасность для российского государства и криптосервис-провайдеры, а не разработка ПО вообще (<a href="https://www.skadden.com/insights/publications/2026/05/eu-20th-sanctions-package">Skadden</a>).</p>
+    <p><strong>Ограничивает платёжный канал, а не легальность услуги.</strong> 19-й пакет ЕС внёс в санкционный список НСПК — из-за этого любой платёж на российскую банковскую карту подпадает под санкции, и с 12 января 2026 платёжные посредники перестали поддерживать карты РФ для выплат (<a href="https://mellow.io/sanctions">разбор Mellow</a>). Плюс комплаенс: банк американского или немецкого клиента чаще всего просто не отправит платёж в Россию, даже когда закон этого не запрещает.</p>
+    <p>Отсюда следует главный стратегический вывод, и он не про юриспруденцию, а про географию.</p>
+  </div>
+</section>
+
+<section id="map">
+  <div class="head">
+    <h2>Где реально можно продавать</h2>
+    <span class="note">«везде, где можно» — это не США и не ЕС</span>
+  </div>
+  <div class="prose">
+    <p>Рынки надо ранжировать не по размеру, а по проходимости платежа. И тут случается удача: <strong>зона, где платёж проходит, почти совпадает с зоной, где Telegram — основной мессенджер</strong>. СНГ и Центральная Азия, Иран, Турция, MENA, Индия, Индонезия, Бразилия — там боты, mini-apps и автоматизация не экзотика, а рабочий инструмент бизнеса. А конкуренция при этом кратно слабее, чем на англоязычном рынке.</p>
+  </div>
+  <div class="split">
+    <div class="card ac">
+      <h4>Зелёная зона — начинать здесь</h4>
+      <p style="color:var(--muted);font-size:15px">Казахстан, Узбекистан, Кыргызстан, Армения, Азербайджан, Грузия, Беларусь. Платёж проходит, язык общий, Telegram доминирует, спрос на боты записи и лояльности живой, а местных студий мало.</p>
+    </div>
+    <div class="card">
+      <h4>Жёлтая — второй заход</h4>
+      <p style="color:var(--muted);font-size:15px">Турция, ОАЭ, Сербия, Индия, Индонезия, Египет, Бразилия. Платёж чаще проходит через локальные банки, английский обязателен, но рынок больше и чек выше. Сюда идти, когда появятся первые реальные кейсы.</p>
+    </div>
+    <div class="card wr">
+      <h4>Красная — не сейчас</h4>
+      <p style="color:var(--muted);font-size:15px">США, ЕС, Великобритания, Канада, Австралия. Реалистично только через иностранное юрлицо или платёжного агента. Не «невозможно», но это отдельный проект на несколько месяцев и денег — а не то, с чего начинают.</p>
+    </div>
+  </div>
+  <div class="box acid">
+    <span class="kicker">Переформулировка цели</span>
+    <p>«Работать с клиентами со всего мира» на старте означает: <strong>продавать на понятном языке в соседние страны, где Telegram — инфраструктура, а не приложение</strong>. Это и есть весь мир — просто та его часть, до которой ты дотягиваешься сегодня, а не через полгода настройки платёжного контура. Красная зона никуда не денется.</p>
+  </div>
+</section>
+
+<section id="ai">
+  <div class="head">
+    <h2>Нейронка вместо проверок</h2>
+    <span class="note">где это правда работает, а где убивает агентство</span>
+  </div>
+  <div class="prose">
+    <p>Скажу прямо и один раз. Нейронка напишет код — договор подпишешь ты. Ответственность за результат нельзя делегировать инструменту: если ты не можешь прочитать, что она написала, об ошибке узнаешь не ты, а клиент, и узнает он это на своих деньгах.</p>
+    <p>Но это не «нельзя». Это «выбирай работу, у которой <strong>ошибка видна снаружи</strong>». Ты можешь не читать код, если можешь проверить результат руками за десять минут. И не можешь браться за то, где неправильный код выглядит точно так же, как правильный.</p>
+  </div>
+  <div class="split">
+    <div class="card ac">
+      <h4>Безопасный коридор</h4>
+      <ul class="t" style="font-size:15px;color:var(--muted)">
+        <li><strong>Лендинги и сайты</strong> — открыл, посмотрел, прокликал на телефоне</li>
+        <li><strong>Telegram-боты со сценариями</strong> — прошёл все ветки диалога сам</li>
+        <li><strong>n8n-воркфлоу</strong> — запустил, посмотрел, что пришло на выходе</li>
+        <li><strong>WordPress-сайты</strong> — контент правится из админки, ломаться нечему</li>
+        <li><strong>Mini-apps без денег внутри</strong> — трекеры, каталоги, лояльность на штампах</li>
+      </ul>
+    </div>
+    <div class="card wr">
+      <h4>Не браться, пока не читаешь код</h4>
+      <ul class="t" style="font-size:15px;color:var(--muted)">
+        <li><strong>Приём платежей</strong> — ошибка стоит денег клиента и его репутации</li>
+        <li><strong>Авторизация и пароли</strong> — дыра не видна, пока её не найдут</li>
+        <li><strong>Персональные данные</strong> — плюс GDPR, если клиент из ЕС</li>
+        <li><strong>Запись в чужую CRM или бухгалтерию</strong> — испорченные данные не откатишь</li>
+        <li><strong>Всё, где сбой всплывает через месяц</strong> — тихие ошибки в расчётах, миграциях, интеграциях</li>
+      </ul>
+    </div>
+  </div>
+
+  <h3>Ворота качества, которые не требуют чтения кода</h3>
+  <div class="prose">
+    <ul class="t">
+      <li><strong>Lighthouse</strong> — встроен в Chrome. Производительность, доступность, SEO. Ниже 90 по любому пункту — не сдавать.</li>
+      <li><strong>Три ширины и живой телефон</strong> — 375, 768, 1440 пикселей плюс реальное устройство. Эмулятор врёт про шрифты и тач.</li>
+      <li><strong>Чек-лист сценариев</strong> — по каждому боту письменный список всех веток, включая «пользователь ввёл ерунду», «нажал кнопку дважды», «ушёл на середине». Прогоняешь руками и <strong>записываешь видео</strong> — оно же станет демо и доказательством работы.</li>
+      <li><strong>Тест мусором</strong> — в n8n прогонять воркфлоу не только правильными данными, но и пустыми, кривыми и слишком длинными. Это единственная проверка, которую все пропускают.</li>
+      <li><strong>Аудит зависимостей</strong> — <code>npm audit</code> и <code>pip-audit</code> перед сдачей.</li>
+      <li><strong>Секреты</strong> — <code>git status</code> перед каждым коммитом, <code>.env</code> в <code>.gitignore</code>. Утёкший токен клиента — единственная ошибка, после которой не извиняются.</li>
+    </ul>
+    <p>И честная оговорка про автотесты: если тесты пишет та же нейронка, что писала код, они проверяют её собственное понимание задачи, а не правильность решения. Ошибку в логике они пройдут насквозь. Тесты полезны против регрессий, но не заменяют проверку руками.</p>
+  </div>
+
+  <div class="box warn">
+    <span class="kicker">Два юридических следствия, о которых обычно узнают поздно</span>
+    <p><strong>Раскрытие использования ИИ.</strong> Многие договоры 2026 года содержат отдельный пункт, требующий сообщать о применении генеративного ИИ в работе. Не сообщил — нарушил договор, независимо от качества результата.</p>
+    <p><strong>Права на результат.</strong> В США произведение без человеческого авторства проблемно охраняется авторским правом — а ты по договору обязуешься передать клиенту права на код. Практический вывод простой: архитектура, правки и интеграция должны быть твои, а не «сгенерируй мне всё целиком». Это и юридически чище, и совпадает с тем, что тебе в любом случае надо научиться делать.</p>
+  </div>
+</section>
+
+<section id="usa">
+  <div class="head">
+    <h2>Если написал клиент из США</h2>
+    <span class="note">что делать, в каком порядке</span>
+  </div>
+  <div class="prose">
+    <p>Отдельный сценарий, потому что он почти наверняка случится: соцсети и каталоги не спрашивают, откуда читатель. И ответ здесь — не «никак». Юридически всё чище, чем принято думать; ломается это в двух других местах, и оба лечатся структурой сделки.</p>
+  </div>
+
+  <h3>Хорошая новость: закон и налоги на твоей стороне</h3>
+  <div class="prose">
+    <p><strong>Запрета покупать у тебя нет.</strong> Determination OFAC (выпущен 12 июня 2024, вступил в силу 12 сентября 2024) запрещает лицам США <em>оказывать</em> IT-консалтинг, поддержку и облачные услуги лицам, находящимся в России. Формулировка в <a href="https://ofac.treasury.gov/faqs/1184">FAQ 1184</a> прямая: «from the United States, or by a United States person… to any person located in the Russian Federation». Обратное направление под неё не подпадает. Общего запрета на импорт услуг из РФ в санкционном режиме США нет — сервисные ограничения построены как экспортные.</p>
+    <p><strong>С налогами США сценарий на удивление благоприятный.</strong> Удержание 30% по главе 3 Налогового кодекса США применяется только к доходу из источников в США, а источник дохода от услуг определяется <strong>местом их фактического выполнения</strong> — IRS формулирует это прямо: «The place, where the personal services are performed, generally determines the source of the personal service income» (<a href="https://www.irs.gov/individuals/international-taxpayers/source-of-income-personal-service-income">IRS</a>). Работа выполнена в России целиком, значит доход иностранный по источнику, значит:</p>
+    <ul class="t">
+      <li>удержание — <strong>0%</strong>, а не 30%;</li>
+      <li>форма <strong>1099-NEC не подаётся</strong> — она для американских лиц;</li>
+      <li>форма <strong>1042-S тоже не подаётся</strong> — она нужна при доходе из источника в США;</li>
+      <li>приостановление налогового договора США–РФ (действует со стороны США с 16 августа 2024) на этот расклад <strong>не влияет</strong> — договорные льготы просто не нужны там, где ставка и так ноль.</li>
+    </ul>
+    <div class="box acid">
+      <span class="kicker">Одна форма, которую надо отдать самому и сразу</span>
+      <p><strong>W-8BEN</strong> — «Certificate of Foreign Status». Без неё плательщик обязан презюмировать, что получатель — американское лицо, и удержать backup withholding. То есть форма нужна не им, а <strong>тебе</strong>. Заполни её заранее и прикладывай к первому же инвойсу: для их бухгалтерии это снимает половину вопросов, а тебя показывает человеком, который понимает, как устроена работа с иностранными подрядчиками.</p>
+      <p>И зафиксируй в договоре, что все услуги оказываются вне территории США. Если ты когда-нибудь поработаешь физически в США хоть неделю, эта часть дохода станет американской по источнику, распределится по дням — и вот к ней уже применятся 30% без всякой договорной защиты, потому что договор приостановлен.</p>
+    </div>
+  </div>
+
+  <h3>Неочевидная плохая: риск возникает у клиента, а не у тебя</h3>
+  <div class="prose">
+    <p>Вот что почти никто не учитывает. В разработке поток услуг двусторонний. Заказчик передаёт техзадание, консультирует по своей системе, выдаёт доступ к своему облаку, CRM или репозиторию — и в этот момент <strong>он сам оказывается лицом, оказывающим IT-услуги лицу в России</strong>. А это ровно то, что determination запрещает.</p>
+    <p>То есть сделку убьёт не платёж, а <em>способ совместной работы</em>. И убьёт его юрист клиента, а не твой.</p>
+    <p>Лечится это структурой проекта, и лечится хорошо:</p>
+    <ul class="t">
+      <li><strong>Никаких доступов к их системам.</strong> Ты не заходишь в их облако, CRM, ERP и корпоративный репозиторий. Совсем.</li>
+      <li><strong>Ты отдаёшь артефакт, они разворачивают.</strong> Код, воркфлоу-JSON, инструкция — деплоит клиент у себя. Это же снимает половину вопросов по безопасности.</li>
+      <li><strong>Не консультируешь их по их корпоративному софту.</strong> Ты делаешь свою вещь, а не настраиваешь чужую.</li>
+      <li><strong>Тестовые данные, а не боевые.</strong> Синтетика вместо выгрузки их клиентской базы.</li>
+    </ul>
+    <p>Приятный побочный эффект: это ровно та модель работы, которая и так безопаснее для тебя — без доступов к чужим боевым системам ты не можешь их сломать.</p>
+  </div>
+
+  <h3>Деньги: узкое место здесь настоящее</h3>
+  <div class="prose">
+    <p>Прямой перевод из США в российский банк в 2026 году практически нереализуем. Газпромбанк был внесён в SDN 21 ноября 2024 с формулировкой «крупнейший из остававшихся неподсанкционных российских банков» — то есть остальные крупные заблокированы раньше. Плюс вторичные санкции делают иностранные банки-корреспонденты крайне неохотными.</p>
+    <p>И отдельно: <strong>НСПК в SDN с 23 февраля 2024</strong> (<a href="https://home.treasury.gov/news/press-releases/jy2117">Минфин США</a>). Значит любая выплата, которая в конце цепочки приходит на карту «Мир», — это операция с участием заблокированного лица. Вывод через платёжный сервис на «Мир» проблему не решает, а прячет.</p>
+  </div>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Маршрут</th><th>Как устроен</th><th>Чем плох</th></tr></thead>
+      <tbody>
+        <tr><td class="nb">Платформа-агент</td><td>EasyStaff, Solar Staff и подобные: стороной договора с американцем становится иностранное юрлицо платформы, ты заключаешь договор с платформой. Комиссия порядка 3,5–7%</td><td>Обязанность клиента проверять конечного получателя не исчезает. И нельзя выводить на «Мир». Актуальный статус каждого сервиса проверяй у самого сервиса — публичные обзоры пишут аффилированные авторы</td></tr>
+        <tr><td class="nb">Юрлицо в третьей стране</td><td>ООО или аналог в Армении, Казахстане, ОАЭ; договор США ↔ это юрлицо, форма W-8BEN-E вместо W-8BEN</td><td>Нужна реальная деятельность, а не почтовый ящик: с американской стороны есть доктрины бенефициарного владельца, с российской — правила КИК и валютный контроль</td></tr>
+        <tr><td class="nb">Смена резидентства</td><td>Переезд и реальная смена налогового резидентства</td><td>Самый чистый вариант и самый дорогой. Бумажная релокация без переезда создаёт риски с обеих сторон</td></tr>
+        <tr><td class="nb">Крипта</td><td>OFAC технологически нейтрален: <a href="https://ofac.treasury.gov/faqs/1021">FAQ 1021</a> — правила те же, что для фиата, отдельного запрета нет</td><td>С российской стороны закон № 282-ФЗ с 1 сентября 2026 разрешает крипту только во внешнеторговых расчётах и <strong>только через уполномоченных операторов</strong>, реестр которых формируется до 1 июля 2027. Формально можно, инфраструктуры пока нет. Плюс сеть Garantex/Grinex под санкциями с августа 2025 — использование любого её элемента это прямое нарушение</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Порядок действий, когда написал американец</h3>
+  <ol class="steps">
+    <li><div><h4>Задать три вопроса до обсуждения задачи</h4><p>Где компания зарегистрирована юридически. Есть ли у них юрлицо или подрядчики за пределами США. Как они обычно платят иностранным исполнителям. Ответы на эти три вопроса решают, есть ли вообще сделка — и экономят неделю переговоров о том, чего не будет.</p></div></li>
+    <li><div><h4>Сказать, где ты находишься. Сразу</h4><p>Не в середине проекта и не на инвойсе. Часть клиентов уйдёт — это нормально и это лучший из возможных исходов, потому что уходят они <em>до</em> работы. Оставшиеся — те, чей комплаенс это позволяет, и с ними уже можно работать спокойно.</p></div></li>
+    <li><div><h4>Предложить структуру, а не ждать её от них</h4><p>«Я отдаю готовый артефакт, вы разворачиваете у себя. Доступы к вашим системам мне не нужны. Оплата через платформу-подрядчика, вот форма W-8BEN». Клиент, которому не нужно ничего придумывать, соглашается в разы чаще.</p></div></li>
+    <li><div><h4>Проверить платёжный канал маленьким платежом</h4><p>Самый важный пункт. Прежде чем делать проект на несколько тысяч, продай платный пилот на 200–500 долларов — маленькая задача с реальным результатом — и <strong>доведи оплату до конца</strong>. Канал либо работает, либо нет, и узнать это надо до того, как вложены недели. Заодно это лучший способ проверить и самого клиента.</p></div></li>
+    <li><div><h4>Не выводить на карту «Мир»</h4><p>По причинам выше. Если платформа предлагает только этот вариант вывода — это не тот маршрут.</p></div></li>
+    <li><div><h4>Держать документальный след</h4><p>Договор с указанием, что услуги оказаны вне США, инвойсы, акты, переписка. Не ради налоговой, а ради банка: именно документируемость решает, пройдёт платёж комплаенс или зависнет.</p></div></li>
+  </ol>
+
+  <div class="box">
+    <span class="kicker">И трезвая рамка</span>
+    <p>Американские клиенты из соцсетей — это <strong>бонус, а не план</strong>. Каждая такая сделка требует отдельной возни со структурой и платежом, и часть их сорвётся не по твоей вине. Строй бизнес на зелёной зоне, где деньги приходят без приключений, — а когда напишет американец, у тебя будет готовый порядок действий вместо импровизации. Это и есть вся разница.</p>
+  </div>
+</section>
+
+<section id="14">
+  <div class="head">
+    <h2>Первые 14 дней</h2>
+    <span class="note">папка превращается в актив, каналы включаются</span>
+  </div>
+  <div class="prose">
+    <p>У тебя уже собрано двадцать проектов, развёрнут сервер, импортированы девять воркфлоу и снято 55 скриншотов. При этом <strong>ни одной публичной ссылки не существует</strong>: все карточки витрины стоят с заглушками <code>demo: '#'</code> и <code>repo: '#'</code>, git-репозиториев нет ни в одной папке, боты стоят без токенов. Первая неделя — только про это.</p>
+  </div>
+
+  <h3>Неделя 1 — сделать существующее видимым</h3>
+  <ol class="steps">
+    <li><div><h4>Убрать с лендинга выдуманное</h4><p>«120+ проектов запущено», «×2 рост заявок в среднем», отзыв Анны Кот и три несуществующих кейса. Заменить на честные цифры витрины: 22 проекта, живые демо, открытые исходники. Витрина уже написана правильно — привести лендинг к ней, а не наоборот.</p></div></li>
+    <li><div><h4>Свести услуги к тому, что есть</h4><p>Убрать с лендинга приложения для iOS и Android, Shopify и съёмку рилсов — ни одного такого проекта в портфолио нет. Оставить шесть направлений витрины: боты, mini-apps, ИИ-ассистенты, автоматизация, лендинги, WordPress. Обещание должно быть уже доказательства, а не шире.</p></div></li>
+    <li><div><h4>GitHub-организация и 22 репозитория</h4><p>Каждый проект — отдельный репозиторий. Первым экраном README — превью-скриншот из <code>_previews</code>. Проставить topics (<code>n8n</code>, <code>telegram-bot</code>, <code>ai-agent</code>, <code>automation</code>, <code>telegram-mini-app</code>), закрепить лучшие в профиле. Это одновременно портфолио, SEO-актив и доказательство, что код существует.</p></div></li>
+    <li><div><h4>Задеплоить на Vercel</h4><p>Четыре лендинга (один проект, четыре роута), витрину, три standalone-демо WordPress, три фронта mini-app. Бесплатно, полчаса на проект.</p></div></li>
+    <li><div><h4>Оживить витрину</h4><p>Подставить 55 готовых скриншотов вместо градиентных заглушек и заменить все <code>demo: '#'</code> и <code>repo: '#'</code> на реальные ссылки. Сейчас витрина рендерит «Live demo · скоро» на всех 22 карточках — это выглядит как незаконченный сайт, хотя работы сделаны.</p></div></li>
+    <li><div><h4>Включить ботов</h4><p>Создать ботов у @BotFather, вписать токены, запустить на VPS два-три самых показательных: запись к мастеру, вовлечённость с XP, FAQ-ассистент. Завести тестовый чат, выдать права админа, записать GIF работы каждого. Ссылка вида <code>t.me/бот</code> в переписке — самый быстрый способ доказать, что вы существуете.</p></div></li>
+    <li><div><h4>Домен и почта</h4><p>Свести <code>tercia.studio</code> из футера и <code>tercia.dev</code>, на котором живёт n8n, к одному домену. Завести почту на домене вместо gmail — она обязательна для партнёрских программ и просто читается иначе на переговорах.</p></div></li>
+  </ol>
+
+  <h3>Неделя 2 — включить каналы</h3>
+  <ol class="steps">
+    <li><div><h4>Опубликовать 5–10 воркфлоу в библиотеке n8n</h4><p>Главный канал, подробности ниже. Начать с тех шести, что уже собраны: нутрициолог, помощник по текстам, FAQ, пайплайн заявок, мониторинг, кросс-постинг.</p></div></li>
+    <li><div><h4>Разместить ботов в каталогах</h4><p>Десять бесплатных площадок за один вечер. Список — в разделе каналов.</p></div></li>
+    <li><div><h4>Профили на рублёвых биржах</h4><p>Kwork, FL.ru, Weblancer. Первые деньги должны прийти в рублях и быстро: они дают не столько доход, сколько <strong>настоящие кейсы с настоящими клиентами</strong>, которыми заменяются выдуманные отзывы.</p></div></li>
+    <li><div><h4>Бесплатный профиль на Clutch</h4><p>Basic-профиль ничего не стоит, а отзывы клиентов — главный фактор органического ранжирования в каталоге. Начинать собирать их надо с первого же заказа.</p></div></li>
+    <li><div><h4>Подписаться на каналы с заказами и отвечать каждый день</h4><p>@digitaltender, @webfrl, @zapwork, @normrabota. Здесь выигрывает не портфолио, а скорость отклика.</p></div></li>
+    <li><div><h4>Комментарий в ежемесячном треде Hacker News</h4><p>Первого числа каждого месяца выходит «Ask HN: Freelancer? Seeking freelancer?». У него всего 20–45 очков против 300–550 у соседнего «Who is hiring» — то есть конкуренция низкая, а комментарий видно.</p></div></li>
+  </ol>
+</section>
+
+<section id="channels">
+  <div class="head">
+    <h2>Бесплатные каналы</h2>
+    <span class="note">по убыванию отдачи для этой ниши</span>
+  </div>
+
+  <h3>Первый по важности: библиотека шаблонов n8n</h3>
+  <div class="prose">
+    <p>В <a href="https://n8n.io/workflows/">n8n.io/workflows</a> лежит более одиннадцати с половиной тысяч воркфлоу, опубликованных сообществом. Публикация бесплатна, гео-ограничений нет, автор указывается. Каждый шаблон — это <strong>отдельная страница, индексируемая на домене с высоким авторитетом, которая ранжируется по запросам вида «n8n + задача»</strong>. То есть человек, который прямо сейчас ищет решение своей проблемы, находит твой шаблон и твоё имя рядом с ним.</p>
+    <p>Из всего, что доступно бесплатно и не упирается ни в санкции, ни в платёжные барьеры, это самый сильный канал именно для твоей специализации. Механика публикации описана в <a href="https://docs.n8n.io/workflows/templates/">документации n8n</a>.</p>
+    <p>Рядом — <a href="https://n8n.io/creators/">Creators Program</a>: верифицированный бейдж, листинг в каталоге создателей, закрытый Discord для топ-авторов. Гео-ограничений на странице не заявлено. И <a href="https://community.n8n.io/">community.n8n.io</a> — форум, где репутация набирается ответами на чужие вопросы и конвертируется во входящие в личку. То же на Reddit в r/n8n.</p>
+  </div>
+
+  <h3>Остальное, что стоит времени</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Канал</th><th>Что даёт</th><th class="nb">Из РФ</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://n8n.io/workflows/">Библиотека шаблонов n8n</a></td><td>Вечнозелёный поисковый трафик с намерением. 11 665 шаблонов в библиотеке, публикация бесплатна</td><td class="nb ok">да</td></tr>
+        <tr><td><a href="https://community.n8n.io/">community.n8n.io</a> + r/n8n</td><td>Репутация через ответы → входящие в личку</td><td class="nb ok">да</td></tr>
+        <tr><td>Каталоги Telegram-ботов</td><td>telegram-store.com (~2,3 млн визитов/мес), telegramchannels.me (~2,2 млн), tdirectory.me (~1,9 млн), <a href="https://ru.botostore.com/">botostore.com</a> (~1,1 млн), <a href="https://telegram.botlist.ru/">telegram.botlist.ru</a>, telegramic.org, tlgbot.ru, <a href="https://storebot.me/">storebot.me</a>. Размещение бесплатное</td><td class="nb ok">да</td></tr>
+        <tr><td><a href="https://clutch.co/">Clutch</a>, Basic-профиль</td><td>Бесплатный листинг агентства; органику тянут отзывы клиентов. Verified — $499/год, но это потом</td><td class="nb ok">да</td></tr>
+        <tr><td><a href="https://news.ycombinator.com/submitted?id=whoishiring">HN «Freelancer? Seeking freelancer?»</a></td><td>Ежемесячный тред, низкая конкуренция. Формат: <code>SEEKING WORK — локация | remote | стек | контакт</code></td><td class="nb ok">да</td></tr>
+        <tr><td>Reddit r/ForHire</td><td>Тег <code>[For Hire]</code> обязателен, один пост в 7 дней, в посте нужна ставка — «DM for rates» удаляют</td><td class="nb ok">да</td></tr>
+        <tr><td>GitHub</td><td>Открытые репозитории с topics и README-воронкой; попадание в awesome-списки</td><td class="nb ok">да</td></tr>
+        <tr><td><a href="https://habr.com/">Habr</a></td><td>Единственный русскоязычный B2B-трафик с покупательским намерением. Технический разбор кейса</td><td class="nb ok">да</td></tr>
+        <tr><td>Kwork, FL.ru, Weblancer</td><td>Рублёвый денежный поток сейчас, без санкционных рисков. Источник первых реальных отзывов</td><td class="nb ok">да</td></tr>
+        <tr><td>@digitaltender, @webfrl, @zapwork, @normrabota</td><td>Поток заказов в Telegram. Решает скорость отклика, а не портфолио</td><td class="nb ok">да</td></tr>
+        <tr><td><a href="https://www.make.com/en/solution-partners">Make Solution Partner</a></td><td>Вход бесплатный, но нужны действующие клиенты на Make и сертифицированный эксперт. Гео-ограничений не заявлено, выплаты в РФ под вопросом</td><td class="nb">?</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>На что не тратить время</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Что</th><th>Почему</th></tr></thead>
+      <tbody>
+        <tr><td><a href="https://n8n.io/expert-partners/">n8n Expert Partner Program</a></td><td>Гео-фильтр: Великобритания и Ирландия, Северная Европа, Северная Америка. Плюс требование трёх активных клиентов на n8n. Сейчас вдобавок закрытый пилот</td></tr>
+        <tr><td><a href="https://zapier.com/l/solution-partner">Zapier Solution Partner</a></td><td>Прямо требует не проживать в стране под санкциями США и иметь почту на своём домене</td></tr>
+        <tr><td>Хабр Фриланс</td><td>Площадка <strong>закрылась 28 февраля 2025</strong></td></tr>
+        <tr><td>Freelancehunt</td><td>Заблокировал российских пользователей</td></tr>
+        <tr><td>Google Business Profile</td><td>Верификация в РФ не работает: почта не доставляется, телефонное подтверждение отключено, видеопроверка зависает. Вместо него — Яндекс Бизнес и 2ГИС</td></tr>
+        <tr><td>Upwork и Fiverr через VPN</td><td>Работать можно, пока не дойдёт до вывода. Блокируют именно на выводе — то есть <strong>после того, как работа сделана</strong>: ты остаёшься без денег, клиент без результата, а договор, подписанный с искажением сведений о стороне, защиты не даёт</td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
+
+<section id="platforms">
+  <div class="head">
+    <h2>Фриланс-площадки</h2>
+    <span class="note">проверено по официальным страницам, 24 августа 2026</span>
+  </div>
+  <div class="prose">
+    <p>Короткий ответ: <strong>международной биржи, где резидент РФ может легально работать и выводить деньги, нет</strong>. Не «сложно» — в правилах четырёх площадок Россия названа прямым текстом, ещё две закрыли операции в 2022-м, а на остальных нет выплатного канала, даже когда нет запрета.</p>
+  </div>
+
+  <h3>Явный запрет в правилах</h3>
+  <div class="tw">
+    <table>
+      <thead><tr><th>Площадка</th><th>Что написано</th></tr></thead>
+      <tbody>
+        <tr><td class="nb">Freelancer.com</td><td>Россия в списке стран, чьим пользователям «not permitted to use the website» (<a href="https://www.freelancer.com/support/general/restrictions-in-some-countries">Restricted Countries</a>)</td></tr>
+        <tr><td class="nb">Kwork<strong>.com</strong></td><td><strong>Не путать с kwork.ru — это разные проекты.</strong> Международный Kwork принадлежит эстонскому и гонконгскому юрлицам, и его <a href="https://kwork.com/terms_of_service">условия</a> прямо говорят: сервис недоступен резидентам Ирана, Кубы, КНДР и <strong>Российской Федерации</strong></td></tr>
+        <tr><td class="nb">Envato</td><td>ThemeForest и CodeCanyon: «we are not accepting new author signups from <strong>Russia</strong>, Belarus, Afghanistan, Sudan, or Libya» (<a href="https://help.author.envato.com/hc/en-us/articles/360000471303">справка авторам</a>)</td></tr>
+        <tr><td class="nb">Lemon Squeezy</td><td>Russian Federation в списке неподдерживаемых стран (<a href="https://docs.lemonsqueezy.com/help/getting-started/supported-countries">supported countries</a>)</td></tr>
+        <tr><td class="nb">Upwork</td><td>Операции в РФ и Беларуси приостановлены с марта 2022, аккаунты заморожены. <a href="https://support.upwork.com/hc/en-us/articles/5691956088339-Suspended-operations-in-Russia-and-Belarus">Апелляция возможна только при реальном переезде</a> в несанкционную юрисдикцию</td></tr>
+        <tr><td class="nb">Fiverr</td><td>С 9 марта 2022: «we will not allow the opening of new accounts». Разрешён был только вывод уже накопленного (<a href="https://blog.fiverr.com/post/fiverr-suspends-business-in-russia">блог Fiverr</a>)</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <h3>Запрета нет — но выводить не через что</h3>
+  <div class="prose">
+    <p>Guru.com, Ko-fi, Payhip, Itch.io и подобные не упоминают Россию в правилах. Это ничего не меняет, потому что все они платят через одни и те же три канала, и все три для РФ закрыты: <strong>Stripe</strong> не поддерживает Россию (<a href="https://stripe.com/global">список стран</a>), <strong>PayPal</strong> приостановил работу в РФ, <strong>Payoneer</strong> прекратил обслуживание российских клиентов и счетов 16 декабря 2022 года.</p>
+    <p>То же касается продуктовых маркетплейсов. Идея «продавать не время, а готовые шаблоны» выглядит как обходной путь — но Envato не принимает новых авторов, у Lemon Squeezy прямой запрет, у Gumroad выплаты в РФ встали вслед за PayPal, у Creative Market есть отдельная справочная статья про санкции и выплаты. Канал закрыт с той же стороны, что и биржи.</p>
+    <div class="box warn">
+      <span class="kicker">Не проверено — и проверять почти незачем</span>
+      <p>Toptal, PeoplePerHour, Contra, Arc.dev, Wellfound, Codeable, Codementor, Gun.io, Lemon.io, Workana, Truelancer, freelancermap, 99designs — официальный статус по России не подтверждён ни в одну сторону. Но все они платят через Payoneer, Wise или Stripe, поэтому упираются в ту же стену. Если решишь проверять сам — смотри не страницу регистрации, а <strong>список стран для выплат</strong>. Именно там всё и решается.</p>
+    </div>
+  </div>
+
+  <h3>Чем реально пользоваться</h3>
+  <div class="split">
+    <div class="card ac">
+      <h4>Рублёвый контур — работает штатно</h4>
+      <p style="color:var(--muted);font-size:15px"><strong>Kwork.ru</strong> (именно .ru), <strong>FL.ru</strong>, <strong>Weblancer</strong>, <strong>Workzilla</strong>, <strong>YouDo</strong>, <strong>Profi.ru</strong>. Плюс <strong>Хабр Карьера</strong> как канал прямых заказчиков — это не биржа, расчёты идут напрямую, и для ИП это скорее плюс: акты, счета, чистая бухгалтерия.</p>
+    </div>
+    <div class="card">
+      <h4>Валюта — без биржи</h4>
+      <p style="color:var(--muted);font-size:15px">Прямой заказчик плюс <strong>Solar Staff</strong> как выплатной посредник: сервис <a href="https://solarstaff.ru/">прямо заявляет</a> работу с исполнителями-ИП и самозанятыми и выплаты в 190+ странах, заказчик при этом платит в рублях. Это <strong>не источник заказов</strong> — заказчика надо привести своего. Актуальные условия и комиссию проверяй у самого сервиса.</p>
+    </div>
+    <div class="card wr">
+      <h4>Западные биржи — только через переезд</h4>
+      <p style="color:var(--muted);font-size:15px">Единственный легальный путь — реальная смена налогового резидентства и банковский счёт в поддерживаемой стране. Upwork это прямо и описывает как условие апелляции. Всё остальное — VPN, чужие аккаунты, «карта друга» — ломается на выводе, когда работа уже сделана.</p>
+    </div>
+  </div>
+
+  <div class="box acid">
+    <span class="kicker">Почему это не ломает план</span>
+    <p>Биржа — это не канал продаж, а посредник, который берёт от 10 до 20 процентов и запрещает или усложняет субподряд. Для агентства, построенного на передаче работы исполнителям, она плохо подходит <em>независимо</em> от гражданства.</p>
+    <p>Весь входящий контур из этого плана — шаблоны n8n, каталоги ботов, GitHub, Clutch, Habr — <strong>не зависит от бирж вообще</strong>. Он приводит клиента напрямую, и там нет ни комиссии, ни правил, ни страновых списков. Отсутствие доступа к Upwork лишает тебя не рынка, а костыля, который на твоей модели всё равно бы не сработал.</p>
+  </div>
+</section>
+
+<section id="hunt">
+  <div class="head">
+    <h2>Как искать заказы</h2>
+    <span class="note">два контура, оба нужны</span>
+  </div>
+  <div class="prose">
+    <p>Входящий контур накапливается и через два-три месяца начинает работать сам: шаблоны n8n, каталоги ботов, GitHub, Clutch, статьи на Habr. Ничего не стоит, кроме времени, и не исчезает. Исходящий даёт деньги сейчас, но требует дисциплины и не накапливается совсем: перестал писать — поток кончился в тот же день.</p>
+    <p>Первые полгода живёшь на исходящем и строишь входящий. Потом меняешь пропорцию.</p>
+  </div>
+
+  <h3>Правило десяти в день</h3>
+  <div class="prose">
+    <p>Десять адресных сообщений в день. Не рассылка — <strong>адресных</strong>: с упоминанием конкретного бизнеса и конкретной его проблемы. Это примерно час работы и это единственная часть плана, которую нельзя автоматизировать, потому что автоматизированное видно с первой строки.</p>
+  </div>
+  <div class="split">
+    <div class="card">
+      <h4>Владельцы Telegram-каналов и чатов</h4>
+      <p style="color:var(--muted);font-size:15px">Самая тёплая аудитория, потому что у тебя <strong>уже собраны четыре бота ровно под них</strong>: вовлечённость с XP и лидербордом, викторины, розыгрыши с рефералами, модерация с капчей. Пишешь админу чата на 3–20 тысяч человек, где видно, что активность падает, и даёшь ссылку на живого бота в тестовом чате.</p>
+    </div>
+    <div class="card">
+      <h4>Локальный бизнес в Центральной Азии</h4>
+      <p style="color:var(--muted);font-size:15px">Кофейни, барбершопы, студии, клиники в Казахстане, Узбекистане, Кыргызстане. Бот записи и карта лояльности — оба уже собраны и оба решают понятную владельцу проблему. Русский язык, платёж проходит, конкуренция слабее, чем в РФ.</p>
+    </div>
+    <div class="card">
+      <h4>Малые агентства — субподряд</h4>
+      <p style="color:var(--muted);font-size:15px">Маркетинговые и веб-студии, которым регулярно заказывают бота или автоматизацию, а своей разработки нет. Оффер в одну строку: «ваш бренд, наша разработка». Платят быстрее конечных клиентов, торгуются меньше и возвращаются.</p>
+    </div>
+  </div>
+
+  <h3>Что писать</h3>
+  <div class="prose">
+    <p>Не «здравствуйте, мы IT-агентство полного цикла». Три предложения:</p>
+    <ul class="t">
+      <li>Конкретное наблюдение об их бизнесе — не комплимент, а факт, который видно снаружи.</li>
+      <li>Ссылка на живое демо, которое решает именно эту задачу. Не на сайт агентства — на работающего бота или страницу.</li>
+      <li>Цена и срок. Прямо в первом сообщении.</li>
+    </ul>
+    <p>Последний пункт важнее, чем кажется. Новичку без репутации <strong>фиксированная цена продаётся легче, чем почасовая ставка</strong>: клиент не покупает твоё время, о котором ничего не знает, он покупает результат за понятную сумму. Поэтому собери услуги в пакеты — «бот записи под ключ, 5 дней», «FAQ-ассистент на вашей базе знаний, 7 дней», «лендинг с адаптивом и текстами, 4 дня» — и назови цену каждого. Это же снимает половину переговоров.</p>
+  </div>
+
+  <div class="box acid">
+    <span class="kicker">Про честность в первых письмах</span>
+    <p>Про демо говори прямо: «вот работающий проект, ссылка, потыкайте» звучит лучше, чем расплывчатое «мы делали похожее», и несравнимо лучше, чем выдуманный кейс, который развалится на первом уточняющем вопросе. У тебя двадцать работающих проектов — этого достаточно, чтобы не врать.</p>
+  </div>
+</section>
+
+<section id="numbers">
+  <div class="head">
+    <h2>Цифры, по которым считать</h2>
+    <span class="note">когда пойдут заказы на субподряд</span>
+  </div>
+  <div class="metrics">
+    <div class="m"><b>×2</b><span>минимум наценки к ставке исполнителя; ×2,5–3 — рабочая норма</span></div>
+    <div class="m"><b>42,9%</b><span>наценка, нужная чтобы маржа была 30%. Наценка ≠ маржа</span></div>
+    <div class="m"><b>19%</b><span>чистая маржа студий меньше 10 человек; средняя по рынку — 13%</span></div>
+    <div class="m"><b>$45 / $95</b><span>медианная ставка в час: Восточная Европа против Северной Америки</span></div>
+  </div>
+  <div class="prose">
+    <ul class="t">
+      <li><strong>Половина — потолок.</strong> Платить субподрядчику не больше половины того, что берёшь с клиента. Если задача требует много правок и менеджмента — треть.</li>
+      <li><strong>Ставки по нишам.</strong> AI и ML — самая дорогая специализация: медиана $125 в час, эксперт $245. Full-stack — $85. Это ориентир для того, как позиционировать автоматизации и ИИ-ассистентов относительно «просто сайтов».</li>
+      <li><strong>Разброс по лендингу.</strong> Фрилансер берёт $300–2000, агентство $1500–10000 за ту же работу. Этот разрыв и есть модель посредника.</li>
+      <li><strong>Telegram на западном рынке.</strong> Бот со сценариями $5000–12000, mini-app с записью $20000–35000. В СНГ в разы ниже — и это нормальная стартовая точка, а не повод расстраиваться.</li>
+      <li><strong>Админка съедает 30–40% сметы</strong> любого mini-app. Самая частая причина недооценённого проекта.</li>
+      <li><strong>Условия оплаты исполнителю не короче, чем у клиента.</strong> Клиент платит через 30 дней — исполнитель тоже через 30 или по этапам. Иначе кредитуешь клиента из своего кармана, а при марже проекта 35% двух задержавших платёж хватает, чтобы обнулить оборотку.</li>
+      <li><strong>Главный убийца маржи — не низкая цена продажи, а переделки после дешёвого исполнителя.</strong> Сэкономил на ставке, потратил втрое на правки и объяснения клиенту.</li>
+    </ul>
+  </div>
+</section>
+
+<section id="never">
+  <div class="head">
+    <h2>Чего не делать</h2>
+    <span class="note">каждый пункт — про потерю денег, а не про мораль</span>
+  </div>
+  <div class="prose">
+    <ul class="t">
+      <li><strong>Не выдавать себя за резидента другой страны</strong> на биржах и в договорах. Блокировка срабатывает на выводе — когда работа уже сделана.</li>
+      <li><strong>Не принимать оплату от компании на личную карту.</strong> Ей нужен документ для бухгалтерии, а тебе — чистый налоговый учёт.</li>
+      <li><strong>Не открывать зарубежный счёт молча.</strong> Уведомление в ФНС — месяц, дальше отчётность. Таджикистан льгот не даёт.</li>
+      <li><strong>Не подписывать договор с пунктом «prior written consent» на субподряд</strong>, пока модель построена на субподряде. Скрытая передача работы вопреки этому пункту — основание расторгнуть договор «за причину» и вернуть оплаченное.</li>
+      <li><strong>Не давать исполнителю клиентские данные до подписанного NDA</strong> и до передачи прав на код формулировкой в настоящем времени («hereby assigns»). Иначе продаёшь клиенту права, которых у тебя нет.</li>
+      <li><strong>Не браться за платежи, авторизацию и персональные данные</strong>, пока не можешь прочитать код, который их обрабатывает.</li>
+      <li><strong>Не оставлять на сайте выдуманные цифры и отзыв.</strong> Это единственная вещь во всей папке, которая может стоить бизнеса целиком.</li>
+    </ul>
+  </div>
+</section>
+
+<footer>
+  <p>Факты о санкциях, платёжных сервисах, налогах и площадках проверены 24 августа 2026 по указанным источникам. Часть данных не подтверждена первоисточником и помечена в тексте: перечень документов валютного контроля, формулировка ст. 148 НК, штрафы по ст. 15.25 КоАП для ИП, поддержка Таджикистана платёжными сервисами, список российских банков, проводящих входящие валютные переводы. Это фактическая сводка, а не юридическая или налоговая консультация — перед регистрацией счетов и подписанием договоров проверяй с бухгалтером и юристом.</p>
+  <p>Дизайн-система, шрифты и палитра — из существующего лендинга Tercia.</p>
+</footer>
+
+</div>
+
+</body>
+</html>

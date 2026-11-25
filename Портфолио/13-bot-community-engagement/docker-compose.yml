@@ -1,0 +1,39 @@
+services:
+  db:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${DB_NAME:-engagement}
+      POSTGRES_USER: ${DB_USER:-engagement}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-engagement}
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      # SQL migrations auto-run on first init:
+      - ./db:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${DB_USER:-engagement} -d ${DB_NAME:-engagement}"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  bot:
+    build: .
+    restart: unless-stopped
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      BOT_TOKEN: ${BOT_TOKEN}
+      DB_ENGINE: postgres
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-engagement}
+      DB_USER: ${DB_USER:-engagement}
+      DB_PASSWORD: ${DB_PASSWORD:-engagement}
+      TZ: ${TZ:-Europe/Amsterdam}
+      ADMIN_IDS: ${ADMIN_IDS:-}
+      DEFAULT_LANG: ${DEFAULT_LANG:-ru}
+      LOG_LEVEL: ${LOG_LEVEL:-INFO}
+
+volumes:
+  pgdata:

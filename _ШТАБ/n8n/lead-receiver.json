@@ -1,0 +1,81 @@
+{
+  "name": "Tercia — заявки с сайта",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead",
+        "responseMode": "responseNode",
+        "options": {
+          "allowedOrigins": "https://tercia.dev"
+        }
+      },
+      "id": "webhook",
+      "name": "Заявка с сайта",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [-180, 0],
+      "webhookId": "tercia-lead"
+    },
+    {
+      "parameters": {
+        "jsCode": "/* Проверяем и приводим к одному виду. Пустое имя или контакт — отказ. */\nconst b = $input.first().json.body || {};\nconst s = v => String(v == null ? '' : v).trim().slice(0, 2000);\n\nconst name = s(b.name);\nconst contact = s(b.contact);\nif (!name || !contact) {\n  return [{ json: { ok: false, error: 'name и contact обязательны' } }];\n}\n\nreturn [{ json: {\n  ok: true,\n  requestId: s(b.requestId) || ('n' + Date.now()),\n  page: s(b.page),\n  name,\n  contact,\n  task: s(b.task),\n  at: new Date().toISOString()\n} }];"
+      },
+      "id": "normalize",
+      "name": "Проверить и привести",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [40, 0]
+    },
+    {
+      "parameters": {
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "logic": "removeItemsWithAlreadySeenKeyValues",
+        "dedupeValue": "={{ $json.requestId }}",
+        "options": {}
+      },
+      "id": "dedupe",
+      "name": "Отсеять дубль",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [260, 0]
+    },
+    {
+      "parameters": {
+        "fromEmail": "info@tercia.dev",
+        "toEmail": "info@tercia.dev",
+        "subject": "={{ 'Заявка с сайта: ' + $json.name }}",
+        "emailFormat": "text",
+        "text": "={{ 'Имя: ' + $json.name + '\\nКонтакт: ' + $json.contact + '\\nЗадача: ' + ($json.task || '—') + '\\nСтраница: ' + ($json.page || '—') + '\\nID: ' + $json.requestId + '\\nВремя: ' + $json.at }}",
+        "options": {}
+      },
+      "id": "mail",
+      "name": "Письмо на info@",
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [480, 0],
+      "credentials": {
+        "smtp": { "id": "ЗАМЕНИТЬ", "name": "Яндекс 360 SMTP" }
+      }
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true }) }}",
+        "options": { "responseCode": 200 }
+      },
+      "id": "ok",
+      "name": "Ответить 200",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1,
+      "position": [700, 0]
+    }
+  ],
+  "connections": {
+    "Заявка с сайта":      { "main": [[{ "node": "Проверить и привести", "type": "main", "index": 0 }]] },
+    "Проверить и привести":{ "main": [[{ "node": "Отсеять дубль",        "type": "main", "index": 0 }]] },
+    "Отсеять дубль":       { "main": [[{ "node": "Письмо на info@",      "type": "main", "index": 0 }]] },
+    "Письмо на info@":     { "main": [[{ "node": "Ответить 200",         "type": "main", "index": 0 }]] }
+  },
+  "settings": { "executionOrder": "v1" }
+}

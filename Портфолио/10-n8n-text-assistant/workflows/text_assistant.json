@@ -1,0 +1,321 @@
+{
+  "name": "AI Business Text Assistant",
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "id": "25860a87-8b77-4147-8ea9-9d7d2da4d017",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [240, 300],
+      "webhookId": "text-assistant-webhook"
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notExists",
+                      "singleValue": true
+                    }
+                  }
+                ]
+              },
+              "outputKey": "message"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.callback_query }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ]
+              },
+              "outputKey": "callback_query"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "ee33afb8-0652-430b-8085-00ff89fa36ee",
+      "name": "Тип апдейта",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3,
+      "position": [460, 300]
+    },
+    {
+      "parameters": {
+        "jsControls": "",
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "// Пользователь прислал тезисы обычным текстовым сообщением.\n// Собираем инлайн-клавиатуру выбора формата и вытаскиваем chat_id + текст.\nconst msg = $json.message || {};\nconst chatId = msg.chat && msg.chat.id;\nconst userId = msg.from && msg.from.id;\nconst userName = (msg.from && (msg.from.username || msg.from.first_name)) || '';\nconst brief = (msg.text || '').trim();\n\n// Язык по языку клиента Telegram (ru → RU, иначе EN).\nconst lang = (msg.from && msg.from.language_code || 'ru').startsWith('ru') ? 'ru' : 'en';\n\nconst L = {\n  ru: {\n    empty: 'Пришлите тезисы текстом — из них соберу деловое письмо, ответ или пост.',\n    pick: 'Тезисы приняты. Выберите формат:',\n    letter: '✉️ Письмо',\n    reply: '💬 Ответ',\n    post: '📢 Пост'\n  },\n  en: {\n    empty: 'Send your key points as text — I will turn them into a business letter, reply or post.',\n    pick: 'Got your points. Choose a format:',\n    letter: '✉️ Letter',\n    reply: '💬 Reply',\n    post: '📢 Post'\n  }\n}[lang];\n\n// callback_data: fmt|<letter|reply|post>. Разбирается в ноде «Разбор callback».\nconst keyboard = {\n  inline_keyboard: [[\n    { text: L.letter, callback_data: 'fmt|letter' },\n    { text: L.reply, callback_data: 'fmt|reply' },\n    { text: L.post, callback_data: 'fmt|post' }\n  ]]\n};\n\nreturn {\n  json: {\n    chat_id: chatId,\n    user_id: userId,\n    user_name: userName,\n    lang,\n    brief,\n    text_to_send: brief ? L.pick : L.empty,\n    reply_markup: brief ? JSON.stringify(keyboard) : '',\n    has_brief: !!brief\n  }\n};"
+      },
+      "id": "d3ae859c-62d7-43a2-81ed-ba0073eaa9f0",
+      "name": "Клавиатура форматов",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 160]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO ta_last_request (user_id, chat_id, user_name, lang, brief, format, updated_at)\nVALUES ($1, $2, $3, $4, $5, NULL, NOW())\nON CONFLICT (user_id) DO UPDATE\nSET chat_id = EXCLUDED.chat_id,\n    user_name = EXCLUDED.user_name,\n    lang = EXCLUDED.lang,\n    brief = EXCLUDED.brief,\n    format = NULL,\n    updated_at = NOW();",
+        "options": {
+          "queryReplacement": "={{ $json.user_id }},{{ $json.chat_id }},{{ $json.user_name }},{{ $json.lang }},{{ $json.brief }}"
+        }
+      },
+      "id": "c7ad93f2-3325-4008-8d0e-96acf04b8f30",
+      "name": "Сохранить тезисы",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [900, 160]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.text_to_send }}",
+        "additionalFields": {
+          "reply_markup": "={{ $json.reply_markup }}"
+        }
+      },
+      "id": "1dfbc53b-0c94-48cf-9be5-c6e35d2e96d8",
+      "name": "Показать форматы",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1120, 160]
+    },
+    {
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "javaScript",
+        "jsCode": "// Пользователь нажал инлайн-кнопку: выбрал формат или «Другой вариант».\nconst cq = $json.callback_query || {};\nconst chatId = cq.message && cq.message.chat && cq.message.chat.id;\nconst userId = cq.from && cq.from.id;\nconst userName = (cq.from && (cq.from.username || cq.from.first_name)) || '';\nconst data = cq.data || '';\n\n// callback_data формата 'fmt|letter' | 'fmt|reply' | 'fmt|post' | 'regen'\nconst [action, payload] = data.split('|');\nconst isRegen = action === 'regen';\n// При «Другой вариант» формат берём из БД (нода отдаст сохранённый format).\nconst format = isRegen ? null : (payload || 'letter');\n\nreturn {\n  json: {\n    chat_id: chatId,\n    user_id: userId,\n    user_name: userName,\n    action: action || '',\n    is_regen: isRegen,\n    selected_format: format\n  }\n};"
+      },
+      "id": "b7d2422a-832a-4bf2-86c9-5b764d20266f",
+      "name": "Разбор callback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [680, 460]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Обновляем выбранный формат (если пришёл), считаем расход за сегодня, отдаём последний запрос.\nWITH upd AS (\n  UPDATE ta_last_request\n  SET format = COALESCE($2, format), updated_at = NOW()\n  WHERE user_id = $1\n  RETURNING user_id, chat_id, user_name, lang, brief, format\n),\ncnt AS (\n  SELECT COUNT(*)::int AS used_today\n  FROM ta_usage\n  WHERE user_id = $1 AND created_at::date = CURRENT_DATE\n)\nSELECT upd.user_id, upd.chat_id, upd.user_name, upd.lang, upd.brief, upd.format,\n       cnt.used_today,\n       ($3::int - cnt.used_today) AS remaining_today,\n       (cnt.used_today >= $3::int) AS limit_reached\nFROM upd, cnt;",
+        "options": {
+          "queryReplacement": "={{ $json.user_id }},{{ $json.selected_format }},{{ $vars.DAILY_LIMIT || 10 }}"
+        }
+      },
+      "id": "f317cce0-7b94-4a85-877b-2ede0b4b7ac2",
+      "name": "Лимит и последний запрос",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [900, 460]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "aaaa1111-2222-3333-4444-555566667777",
+              "leftValue": "={{ $json.limit_reached }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "e0409c56-4ca5-4222-9895-8532c69e64b9",
+      "name": "Лимит не превышен?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1120, 460]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.brief }}",
+        "options": {
+          "systemMessage": "=Ты — редактор деловых текстов. Пиши на языке пользователя (lang={{ $json.lang }}). Формат ответа: {{ $json.format }}.\n\nПравила по форматам:\n- letter (Письмо): официальное деловое письмо. Приветствие, 1–3 абзаца по сути тезисов, вежливое закрытие и подпись-плейсхолдер. Тон уважительный, без канцелярита-переизбытка.\n- reply (Ответ): краткий деловой ответ на входящее (2–5 предложений). Прямо по делу, дружелюбно-профессионально.\n- post (Пост): пост для соцсети/канала компании. Цепляющий первый абзац, суть, лёгкий призыв к действию, 2–4 уместных хэштега.\n\nВходные тезисы: {{ $json.brief }}\nВерни только готовый текст без пояснений и без markdown-заголовков."
+        }
+      },
+      "id": "5302134e-1011-4946-bcdf-4c16ae557128",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [1340, 380]
+    },
+    {
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.7
+        }
+      },
+      "id": "84dfd654-9df7-498b-8a7d-0517356d7ab9",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1,
+      "position": [1340, 600]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Разбор callback').item.json.chat_id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "reply_markup": "={{ JSON.stringify({ inline_keyboard: [[ { text: ($('Лимит и последний запрос').item.json.lang === 'en' ? '🔁 Another variant' : '🔁 Другой вариант'), callback_data: 'regen' } ]] }) }}"
+        }
+      },
+      "id": "8c3b7393-b579-4383-a150-9ddd214cb7ff",
+      "name": "Ответ + кнопка",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1560, 380]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO ta_usage (user_id, chat_id, user_name, lang, format, brief, result, created_at)\nVALUES ($1, $2, $3, $4, $5, $6, $7, NOW());",
+        "options": {
+          "queryReplacement": "={{ $('Лимит и последний запрос').item.json.user_id }},{{ $('Лимит и последний запрос').item.json.chat_id }},{{ $('Лимит и последний запрос').item.json.user_name }},{{ $('Лимит и последний запрос').item.json.lang }},{{ $('Лимит и последний запрос').item.json.format }},{{ $('Лимит и последний запрос').item.json.brief }},{{ $json.output }}"
+        }
+      },
+      "id": "0ea02b67-fd54-4fa8-8457-afb5ffba3baf",
+      "name": "Лог использования",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1780, 380]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chat_id }}",
+        "text": "={{ $json.lang === 'en' ? '⛔️ Daily demo limit reached (' + $json.used_today + '). Come back tomorrow or upgrade the plan.' : '⛔️ Дневной лимит демо исчерпан (' + $json.used_today + '). Возвращайтесь завтра или подключите план.' }}",
+        "additionalFields": {}
+      },
+      "id": "2bc6ecea-89d4-4609-9728-dcea832565fb",
+      "name": "Сообщение о лимите",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1340, 620]
+    }
+  ],
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          { "node": "Тип апдейта", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Тип апдейта": {
+      "main": [
+        [
+          { "node": "Клавиатура форматов", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Разбор callback", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Клавиатура форматов": {
+      "main": [
+        [
+          { "node": "Сохранить тезисы", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Сохранить тезисы": {
+      "main": [
+        [
+          { "node": "Показать форматы", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Разбор callback": {
+      "main": [
+        [
+          { "node": "Лимит и последний запрос", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Лимит и последний запрос": {
+      "main": [
+        [
+          { "node": "Лимит не превышен?", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Лимит не превышен?": {
+      "main": [
+        [
+          { "node": "AI Agent", "type": "main", "index": 0 }
+        ],
+        [
+          { "node": "Сообщение о лимите", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          { "node": "AI Agent", "type": "ai_languageModel", "index": 0 }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          { "node": "Ответ + кнопка", "type": "main", "index": 0 }
+        ]
+      ]
+    },
+    "Ответ + кнопка": {
+      "main": [
+        [
+          { "node": "Лог использования", "type": "main", "index": 0 }
+        ]
+      ]
+    }
+  }
+}

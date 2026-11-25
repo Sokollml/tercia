@@ -1,0 +1,287 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Tercia — Направление 05 · VOLT</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+:root{
+  --lime:#CBFF2E; --lime-2:#B6EB16; --lime-dk:#8DBB00;
+  --ink:#0D0E0B; --ink-2:#16180F; --ink-3:#1F2117;
+  --white:#F7F8F3; --muted:#9EA396; --muted-d:rgba(13,14,11,.66);
+  --line-d:rgba(247,248,243,.12); --line-l:rgba(13,14,11,.14);
+  --blk:'Archivo Black',system-ui,sans-serif; --sans:'Inter',system-ui,sans-serif;
+  --maxw:1360px; --pad:clamp(18px,4vw,48px); --r:22px;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{background:var(--ink);color:var(--white);font-family:var(--sans);font-size:16px;line-height:1.58;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+a{color:inherit;text-decoration:none}
+.wrap{max-width:var(--maxw);margin:0 auto;padding-inline:var(--pad)}
+::selection{background:var(--lime);color:var(--ink)}
+.blk{font-family:var(--blk);font-weight:400;text-transform:uppercase;letter-spacing:-.035em}
+
+/* header */
+.hdr{position:sticky;top:0;z-index:70;background:var(--lime);color:var(--ink);border-bottom:2px solid var(--ink)}
+.nav{display:flex;align-items:center;gap:24px;height:70px}
+.logo{display:flex;align-items:center;gap:10px;font-family:var(--blk);font-size:21px;text-transform:uppercase;letter-spacing:-.03em}
+.mark{width:26px;height:26px}
+.nav-l{display:flex;gap:4px;margin-left:auto}
+.nav-l a{font-size:14.5px;font-weight:600;padding:9px 15px;border-radius:99px;transition:.2s}
+.nav-l a:hover{background:var(--ink);color:var(--lime)}
+.btn{display:inline-flex;align-items:center;gap:9px;font-weight:700;font-size:14.5px;padding:13px 22px;border-radius:99px;transition:.25s;border:2px solid transparent;white-space:nowrap}
+.btn-ink{background:var(--ink);color:var(--lime)}
+.btn-ink:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--ink)}
+.btn-lime{background:var(--lime);color:var(--ink)}
+.btn-lime:hover{transform:translate(-2px,-2px);box-shadow:4px 4px 0 var(--lime-dk)}
+.btn-out-d{border-color:var(--line-d);color:var(--white)}
+.btn-out-d:hover{background:var(--white);color:var(--ink);border-color:var(--white)}
+.btn-out-l{border-color:var(--ink);color:var(--ink)}
+.btn-out-l:hover{background:var(--ink);color:var(--lime)}
+.burger{display:none;width:42px;height:42px;border-radius:12px;border:2px solid var(--ink);background:none;flex-direction:column;gap:4px;align-items:center;justify-content:center;cursor:pointer}
+.burger span{width:16px;height:2px;background:var(--ink);display:block}
+
+/* hero — lime block */
+.hero{background:var(--lime);color:var(--ink);padding:clamp(46px,6vw,92px) 0 0;position:relative;overflow:hidden}
+.hero .ghost{position:absolute;font-family:var(--blk);font-size:clamp(300px,44vw,760px);line-height:.7;color:rgba(13,14,11,.05);right:-6%;top:-12%;pointer-events:none;text-transform:uppercase}
+.hero-in{position:relative;z-index:2}
+.eyebrow{display:flex;align-items:center;gap:14px;font-size:13px;font-weight:700;letter-spacing:.34em;text-transform:uppercase}
+.eyebrow::after{content:'';flex:1;height:2px;background:var(--ink);max-width:180px}
+h1{font-family:var(--blk);font-size:clamp(50px,13.5vw,196px);line-height:.82;letter-spacing:-.05em;text-transform:uppercase;margin:18px 0 0}
+h1 .thin{font-family:var(--sans);font-weight:300;letter-spacing:.14em;font-size:.36em;display:block;margin-top:8px}
+.hero-row{display:grid;grid-template-columns:1.25fr 1fr;gap:clamp(24px,4vw,60px);align-items:end;margin-top:clamp(26px,3.5vw,44px);padding-bottom:clamp(52px,7vw,110px)}
+.hero-row p{font-size:clamp(15.5px,1.5vw,18px);color:var(--muted-d);max-width:44ch}
+.hero-act{display:flex;gap:10px;flex-wrap:wrap;margin-top:24px}
+.chips{display:flex;flex-wrap:wrap;gap:8px;justify-content:flex-end}
+.chip{border:2px solid var(--ink);border-radius:99px;padding:8px 16px;font-size:13px;font-weight:700;text-transform:uppercase;letter-spacing:.04em}
+.chip.f{background:var(--ink);color:var(--lime)}
+.dip{position:relative;display:block;width:100%;height:clamp(40px,6vw,90px);color:var(--ink)}
+
+/* marquee dark */
+.mq{background:var(--ink);border-block:2px solid var(--lime);padding:14px 0;overflow:hidden}
+.mq-t{display:flex;gap:38px;width:max-content;animation:sc 26s linear infinite;font-family:var(--blk);font-size:clamp(17px,2.2vw,26px);text-transform:uppercase;letter-spacing:-.03em;color:var(--lime)}
+.mq-t span{display:flex;gap:38px;align-items:center}
+.mq-t span::after{content:'▲';font-size:.55em;color:var(--white)}
+@keyframes sc{to{transform:translateX(-50%)}}
+
+/* dark sections */
+.sec{padding:clamp(62px,8vw,124px) 0}
+.head{display:flex;justify-content:space-between;align-items:flex-end;gap:28px;flex-wrap:wrap;margin-bottom:clamp(30px,4vw,54px)}
+.kick{font-size:12px;font-weight:800;letter-spacing:.32em;text-transform:uppercase;color:var(--lime);display:flex;align-items:center;gap:10px;margin-bottom:16px}
+.kick::before{content:'';width:22px;height:2px;background:var(--lime)}
+h2{font-family:var(--blk);font-size:clamp(32px,6.4vw,84px);line-height:.86;letter-spacing:-.045em;text-transform:uppercase}
+h2 .lime{color:var(--lime)}
+h2 .out{-webkit-text-stroke:2px currentColor;color:transparent}
+.head p{max-width:34ch;color:var(--muted);font-size:15.5px}
+
+/* services */
+.svc{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.s{background:var(--ink-2);border-radius:var(--r);padding:28px;min-height:250px;display:flex;flex-direction:column;justify-content:space-between;transition:.3s;border:2px solid transparent}
+.s:hover{background:var(--lime);color:var(--ink);transform:translateY(-6px)}
+.s:hover p{color:var(--muted-d)}
+.s:hover .s-n{color:var(--ink);opacity:.4}
+.s-n{font-family:var(--blk);font-size:44px;line-height:.8;color:var(--lime);opacity:.85;transition:.3s}
+.s-t{font-family:var(--blk);font-size:clamp(19px,2vw,24px);line-height:1;margin:auto 0 10px}
+.s p{color:var(--muted);font-size:14.6px;transition:.3s}
+.s-go{margin-top:18px;font-size:12.5px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;display:flex;align-items:center;gap:8px}
+
+/* case studies — huge numbers */
+.cs-block{background:var(--white);color:var(--ink);padding:clamp(56px,7vw,110px) 0;border-block:2px solid var(--ink)}
+.cs-block h2{color:var(--ink)}
+.cs-list{display:grid;gap:14px}
+.cs{background:var(--ink);color:var(--white);border-radius:var(--r);padding:clamp(20px,2.4vw,30px);display:grid;grid-template-columns:.75fr 1.1fr 96px;gap:clamp(18px,3vw,40px);align-items:center;transition:.3s;position:relative;overflow:hidden}
+.cs:hover{transform:translateX(8px)}
+.cs:nth-child(even){background:var(--lime);color:var(--ink)}
+.cs-shot{aspect-ratio:16/10;border-radius:14px;display:grid;place-items:center;overflow:hidden;position:relative}
+.cs:nth-child(1) .cs-shot{background:linear-gradient(150deg,#2B3F0B,#0D0E0B)}
+.cs:nth-child(2) .cs-shot{background:linear-gradient(150deg,#0D0E0B,#2B3F0B)}
+.cs:nth-child(3) .cs-shot{background:linear-gradient(150deg,#1B2A3F,#0D0E0B)}
+.cs:nth-child(4) .cs-shot{background:linear-gradient(150deg,#0D0E0B,#3F2A0B)}
+.cs-lab{font-size:11.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;opacity:.6}
+.cs-t{font-family:var(--blk);font-size:clamp(20px,2.6vw,34px);line-height:.95;margin:12px 0 10px}
+.cs p{font-size:14.6px;opacity:.72;max-width:48ch}
+.cs-mets{display:flex;gap:24px;margin-top:16px}
+.cs-mets b{font-family:var(--blk);font-size:20px;display:block;line-height:1}
+.cs-mets span{font-size:11px;font-weight:700;letter-spacing:.14em;text-transform:uppercase;opacity:.6}
+.cs-i{font-family:var(--blk);font-size:clamp(46px,6vw,92px);line-height:.7;opacity:.22;text-align:right}
+
+/* stats strip */
+.strip{background:var(--lime);color:var(--ink);padding:clamp(38px,4.6vw,66px) 0;border-bottom:2px solid var(--ink)}
+.strip-g{display:grid;grid-template-columns:repeat(4,1fr);gap:20px}
+.strip-g>div{border-left:2px solid var(--ink);padding-left:18px}
+.sv-n{font-family:var(--blk);font-size:clamp(38px,5.4vw,80px);line-height:.82;letter-spacing:-.05em}
+.sv-l{font-size:12.5px;font-weight:700;letter-spacing:.16em;text-transform:uppercase;color:var(--muted-d);margin-top:12px}
+
+/* process zigzag */
+.proc{display:grid;gap:0}
+.pr{display:grid;grid-template-columns:110px 1fr 1fr;gap:clamp(16px,3vw,44px);align-items:center;padding:clamp(22px,3vw,38px) 0;border-top:1px solid var(--line-d)}
+.pr:last-child{border-bottom:1px solid var(--line-d)}
+.pr-n{font-family:var(--blk);font-size:clamp(40px,5vw,76px);line-height:.8;-webkit-text-stroke:2px var(--lime);color:transparent}
+.pr:hover .pr-n{color:var(--lime);-webkit-text-stroke:0}
+.pr-t{font-family:var(--blk);font-size:clamp(20px,2.4vw,32px);line-height:1;text-transform:uppercase}
+.pr p{color:var(--muted);font-size:15px}
+
+/* team/values band */
+.vals{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+.val{border:2px solid var(--line-d);border-radius:var(--r);padding:28px;transition:.28s}
+.val:hover{border-color:var(--lime)}
+.val h3{font-family:var(--blk);font-size:20px;text-transform:uppercase;letter-spacing:-.02em;margin-bottom:10px}
+.val p{color:var(--muted);font-size:14.6px}
+
+/* cta */
+.cta{background:var(--lime);color:var(--ink);padding:clamp(58px,7.5vw,120px) 0;text-align:center;border-top:2px solid var(--ink);position:relative;overflow:hidden}
+.cta .ghost{position:absolute;font-family:var(--blk);font-size:clamp(200px,34vw,520px);line-height:.7;color:rgba(13,14,11,.05);left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;text-transform:uppercase;white-space:nowrap}
+.cta h2{position:relative;color:var(--ink);font-size:clamp(36px,8vw,120px)}
+.cta p{position:relative;color:var(--muted-d);margin-top:18px;font-size:17px}
+.cta .btn{position:relative;margin-top:30px;font-size:16px;padding:17px 30px}
+
+/* footer */
+.ftr{background:var(--ink);padding:clamp(46px,6vw,80px) 0 26px}
+.f-g{display:grid;grid-template-columns:1.7fr 1fr 1fr 1.2fr;gap:32px}
+.f-h{font-size:11.5px;font-weight:800;letter-spacing:.2em;text-transform:uppercase;color:var(--lime);margin-bottom:16px}
+.f-g a{display:block;padding:5px 0;color:var(--muted);font-size:15px;transition:.2s}
+.f-g a:hover{color:var(--lime)}
+.f-about{color:var(--muted);font-size:15px;margin-top:14px;max-width:32ch}
+.ftr .logo{color:var(--white)}
+.f-b{display:flex;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:48px;padding-top:20px;border-top:1px solid var(--line-d);font-size:12px;font-weight:600;letter-spacing:.14em;text-transform:uppercase;color:var(--muted)}
+
+@media(max-width:1040px){
+  .hero-row{grid-template-columns:1fr}.chips{justify-content:flex-start}
+  .svc{grid-template-columns:repeat(2,1fr)}
+  .cs{grid-template-columns:1fr}.cs-i{display:none}
+  .strip-g{grid-template-columns:repeat(2,1fr)}
+  .pr{grid-template-columns:70px 1fr}.pr p{grid-column:2}
+  .vals{grid-template-columns:1fr}
+  .f-g{grid-template-columns:1fr 1fr}
+}
+@media(max-width:680px){
+  .nav-l,.nav .btn{display:none}.burger{display:flex;margin-left:auto}
+  .svc,.strip-g{grid-template-columns:1fr}.f-g{grid-template-columns:1fr}
+}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute"><defs>
+<g id="tri"><path d="M32 5 59 52H5z" fill="none" stroke="currentColor" stroke-width="5" stroke-linejoin="round"/><circle cx="32" cy="37" r="7" fill="currentColor"/></g>
+</defs></svg>
+
+<header class="hdr"><div class="wrap nav">
+  <a class="logo" href="#top"><svg class="mark" viewBox="0 0 64 64" style="color:var(--ink)"><use href="#tri"/></svg>Tercia</a>
+  <nav class="nav-l"><a href="#services">Услуги</a><a href="#work">Кейсы</a><a href="#process">Процесс</a><a href="#values">Подход</a><a href="#contacts">Контакты</a></nav>
+  <a href="#cta" class="btn btn-ink">Обсудить проект ↗</a>
+  <button class="burger"><span></span><span></span><span></span></button>
+</div></header>
+
+<main id="top">
+<section class="hero">
+  <span class="ghost">T</span>
+  <div class="wrap hero-in">
+    <div class="eyebrow">Агентство цифровых продуктов</div>
+    <h1>DIGITAL<br>ПОД КЛЮЧ<span class="thin">САЙТЫ · БОТЫ · ПРИЛОЖЕНИЯ · АВТОМАТИЗАЦИЯ</span></h1>
+    <div class="hero-row">
+      <div>
+        <p>Одна команда ведёт продукт от первой гипотезы до стабильной выручки. Без подрядчиков, без «мы уточним у разработчика», без сюрпризов в сроках.</p>
+        <div class="hero-act"><a href="#cta" class="btn btn-ink">Обсудить проект ↗</a><a href="#work" class="btn btn-out-l">Смотреть кейсы</a></div>
+      </div>
+      <div class="chips">
+        <span class="chip f">120+ проектов</span><span class="chip">запуск за 7 дней</span><span class="chip">поддержка 24/7</span><span class="chip f">×2 заявок</span><span class="chip">с 2023 года</span>
+      </div>
+    </div>
+  </div>
+  <svg class="dip" viewBox="0 0 1440 90" preserveAspectRatio="none"><path d="M0 90V0h560c30 0 44 44 80 44h160c36 0 50-44 80-44h560v90z" fill="currentColor"/></svg>
+</section>
+
+<div class="mq"><div class="mq-t">
+  <span>Сайты</span><span>Telegram-боты</span><span>Mini-app</span><span>Приложения</span><span>AI-автоматизация</span><span>Shopify</span><span>Контент</span>
+  <span>Сайты</span><span>Telegram-боты</span><span>Mini-app</span><span>Приложения</span><span>AI-автоматизация</span><span>Shopify</span><span>Контент</span>
+</div></div>
+
+<section class="sec wrap" id="services">
+  <div class="head"><div><div class="kick">Услуги</div><h2>Делаем <span class="lime">всё</span><br><span class="out">для роста</span></h2></div>
+  <p>Шесть направлений. Берём проект целиком или закрываем один участок, где горит.</p></div>
+  <div class="svc">
+    <div class="s"><div class="s-n">01</div><div><div class="s-t">Сайты и<br>лендинги</div><p>Продающие сайты от прототипа до запуска — быстро, с чистой аналитикой.</p><div class="s-go">Подробнее ↗</div></div></div>
+    <div class="s"><div class="s-n">02</div><div><div class="s-t">Боты и<br>mini-app</div><p>Воронки, оплаты и кабинеты в Telegram. Продажи и поддержка 24/7.</p><div class="s-go">Подробнее ↗</div></div></div>
+    <div class="s"><div class="s-n">03</div><div><div class="s-t">Мобильные<br>приложения</div><p>iOS, Android и веб — от прототипа до релиза в сторах.</p><div class="s-go">Подробнее ↗</div></div></div>
+    <div class="s"><div class="s-n">04</div><div><div class="s-t">AI-<br>автоматизация</div><p>n8n, CRM и чаты в одном контуре. Снимаем рутину с людей.</p><div class="s-go">Подробнее ↗</div></div></div>
+    <div class="s"><div class="s-n">05</div><div><div class="s-t">Shopify<br>и e-com</div><p>Магазин под ключ: каталог, оплаты, доставка, аналитика.</p><div class="s-go">Подробнее ↗</div></div></div>
+    <div class="s"><div class="s-n">06</div><div><div class="s-t">Контент<br>и продакшн</div><p>Сценарий, съёмка, монтаж. Рилсы по плану, а не по вдохновению.</p><div class="s-go">Подробнее ↗</div></div></div>
+  </div>
+</section>
+
+<section class="cs-block" id="work"><div class="wrap">
+  <div class="head"><div><div class="kick" style="color:var(--ink-3)"><span style="background:var(--ink)"></span>Кейсы</div><h2>CASE <span style="-webkit-text-stroke:2px var(--ink);color:transparent">STUDIES</span></h2></div>
+  <a href="#contacts" class="btn btn-out-l">Все 23 проекта ↗</a></div>
+  <div class="cs-list">
+    <article class="cs"><div class="cs-shot"><svg width="66" viewBox="0 0 64 64" style="color:var(--lime)"><use href="#tri"/></svg></div>
+      <div><div class="cs-lab">Telegram mini-app</div><div class="cs-t">Программа<br>лояльности</div><p>Карта клиента, баллы и push-кампании внутри мессенджера — без установки приложения.</p>
+      <div class="cs-mets"><div><b>12 400</b><span>карт</span></div><div><b>+38%</b><span>повторных</span></div><div><b>6 нед.</b><span>до релиза</span></div></div></div>
+      <div class="cs-i">01</div></article>
+    <article class="cs"><div class="cs-shot"><svg width="66" viewBox="0 0 64 64" style="color:var(--lime)"><use href="#tri"/></svg></div>
+      <div><div class="cs-lab">Автоворонка</div><div class="cs-t">Бот школы<br>английского</div><p>Прогрев, оплата и выдача доступа без участия менеджера. Работает круглосуточно.</p>
+      <div class="cs-mets"><div><b>×2,4</b><span>заявок</span></div><div><b>−70%</b><span>рутины</span></div><div><b>9 дн.</b><span>сборка</span></div></div></div>
+      <div class="cs-i">02</div></article>
+    <article class="cs"><div class="cs-shot"><svg width="66" viewBox="0 0 64 64" style="color:var(--lime)"><use href="#tri"/></svg></div>
+      <div><div class="cs-lab">Mobile</div><div class="cs-t">Сервис<br>доставки</div><p>iOS и Android с трекингом курьера, онлайн-оплатой и админкой для операторов.</p>
+      <div class="cs-mets"><div><b>4,8</b><span>рейтинг</span></div><div><b>18k</b><span>установок</span></div><div><b>9 нед.</b><span>до релиза</span></div></div></div>
+      <div class="cs-i">03</div></article>
+    <article class="cs"><div class="cs-shot"><svg width="66" viewBox="0 0 64 64" style="color:var(--lime)"><use href="#tri"/></svg></div>
+      <div><div class="cs-lab">Shopify</div><div class="cs-t">Магазин<br>косметики</div><p>Каталог на 340 SKU, оплаты, доставка и связка со складом в один контур.</p>
+      <div class="cs-mets"><div><b>340</b><span>SKU</span></div><div><b>+61%</b><span>выручка</span></div><div><b>12 дн.</b><span>запуск</span></div></div></div>
+      <div class="cs-i">04</div></article>
+  </div>
+</div></section>
+
+<section class="strip"><div class="wrap strip-g">
+  <div><div class="sv-n">120+</div><div class="sv-l">проектов запущено</div></div>
+  <div><div class="sv-n">7 дн.</div><div class="sv-l">до первого релиза</div></div>
+  <div><div class="sv-n">24/7</div><div class="sv-l">боты и поддержка</div></div>
+  <div><div class="sv-n">×2</div><div class="sv-l">рост заявок</div></div>
+</div></section>
+
+<section class="sec wrap" id="process">
+  <div class="head"><div><div class="kick">Процесс</div><h2>Как мы<br><span class="lime">работаем</span></h2></div><p>Прозрачно, по неделям. Вы всегда знаете, что происходит и сколько осталось.</p></div>
+  <div class="proc">
+    <div class="pr"><div class="pr-n">01</div><div class="pr-t">Бриф<br>и цели</div><p>Разбираем задачу, аудиторию и деньги. Фиксируем результат и сроки в одном документе, который потом никто не переписывает.</p></div>
+    <div class="pr"><div class="pr-n">02</div><div class="pr-t">Дизайн<br>и прототип</div><p>Собираем структуру и визуал. Согласуем всё до первой строчки кода — правки на этом этапе бесплатны и быстры.</p></div>
+    <div class="pr"><div class="pr-n">03</div><div class="pr-t">Сборка<br>и интеграции</div><p>Код, подключения, тесты. Демо каждую неделю и доступ к доске задач — видно, что сделано и что дальше.</p></div>
+    <div class="pr"><div class="pr-n">04</div><div class="pr-t">Запуск<br>и рост</div><p>Публикуем, обучаем вашу команду, остаёмся на поддержке и растим метрики на живых данных.</p></div>
+  </div>
+</section>
+
+<section class="sec wrap" id="values" style="padding-top:0">
+  <div class="head"><div><div class="kick">Подход</div><h2>Три правила,<br>по которым живём</h2></div></div>
+  <div class="vals">
+    <div class="val"><h3>Скорость важнее идеала</h3><p>Рабочая версия в проде за неделю бьёт идеальный макет через три месяца. Улучшаем на живых данных.</p></div>
+    <div class="val"><h3>Цифры вместо слов</h3><p>Каждую неделю — демо и метрики. Не «мы поработали над визуалом», а «конверсия +18%».</p></div>
+    <div class="val"><h3>Одна команда за всё</h3><p>Дизайн, код, контент и аналитика внутри. Никаких подрядчиков и перекладывания ответственности.</p></div>
+  </div>
+</section>
+
+<section class="cta" id="cta">
+  <span class="ghost">TERCIA</span>
+  <div class="wrap">
+    <div class="kick" style="color:var(--ink);justify-content:center">Свободны 3 слота</div>
+    <h2>ЗАПУСТИМ<br>ВАШ ПРОДУКТ</h2>
+    <p>Бесплатная консультация и план запуска за 24 часа.</p>
+    <a href="https://t.me/tercia_it" class="btn btn-ink">Написать в Telegram ↗</a>
+  </div>
+</section>
+</main>
+
+<footer class="ftr" id="contacts"><div class="wrap">
+  <div class="f-g">
+    <div><a class="logo" href="#top"><svg class="mark" viewBox="0 0 64 64" style="color:var(--lime)"><use href="#tri"/></svg>Tercia</a>
+      <p class="f-about">Агентство цифровых продуктов полного цикла. Идея, продукт, рост — три такта одной команды.</p></div>
+    <div><div class="f-h">Услуги</div><a href="#services">Сайты</a><a href="#services">Приложения</a><a href="#services">Боты</a><a href="#services">Автоматизация</a><a href="#services">Shopify</a></div>
+    <div><div class="f-h">Агентство</div><a href="#work">Кейсы</a><a href="#process">Процесс</a><a href="#values">Подход</a><a href="#cta">Контакты</a></div>
+    <div><div class="f-h">Связь</div><a href="https://t.me/tercia_it">@tercia_it</a><a href="https://wa.me/79882716669">+7 988 271 66 69</a><a href="mailto:terciaagency@gmail.com">terciaagency@gmail.com</a></div>
+  </div>
+  <div class="f-b"><span>© 2026 Tercia</span><span>tercia.studio</span><span>Направление 05 · VOLT</span></div>
+</div></footer>
+</body>
+</html>

@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Reviews Block — демо блока отзывов</title>
+<meta name="description" content="Standalone-демо Gutenberg-блока отзывов: карусель и сетка, автопрокрутка, адаптив, RU/EN." />
+<style>
+	:root {
+		--paper: #f4efe6;
+		--ink: #241f1a;
+		--muted: #7a7168;
+		--card: #fffdf8;
+		--line: #e4dbcc;
+		--accent: #d5573b;
+		--accent-2: #1f6f6b;
+		--star: #e8a13a;
+		--star-empty: #d8cebc;
+		--shadow: 0 18px 40px -22px rgba(60, 40, 20, 0.45);
+		--radius: 18px;
+		--gap: 22px;
+	}
+
+	* { box-sizing: border-box; }
+
+	html { -webkit-text-size-adjust: 100%; }
+
+	body {
+		margin: 0;
+		background:
+			radial-gradient(1200px 600px at 85% -10%, #fbe7d9 0%, transparent 60%),
+			radial-gradient(900px 500px at -10% 110%, #d9ece6 0%, transparent 55%),
+			var(--paper);
+		color: var(--ink);
+		font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+		line-height: 1.6;
+		min-height: 100vh;
+	}
+
+	.wrap {
+		max-width: 1120px;
+		margin: 0 auto;
+		padding: 48px 24px 80px;
+	}
+
+	/* ---------- Header ---------- */
+
+	.masthead {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: flex-end;
+		justify-content: space-between;
+		gap: 24px;
+		padding-bottom: 28px;
+		border-bottom: 2px solid var(--ink);
+		margin-bottom: 36px;
+	}
+
+	.brand {
+		display: flex;
+		flex-direction: column;
+		gap: 6px;
+	}
+
+	.brand .kicker {
+		font-size: 12px;
+		letter-spacing: 0.22em;
+		text-transform: uppercase;
+		color: var(--accent);
+		font-weight: 700;
+	}
+
+	.brand h1 {
+		margin: 0;
+		font-family: Georgia, "Times New Roman", "PT Serif", serif;
+		font-size: clamp(30px, 6vw, 52px);
+		font-weight: 700;
+		letter-spacing: -0.01em;
+		line-height: 1.05;
+	}
+
+	.brand p {
+		margin: 4px 0 0;
+		max-width: 46ch;
+		color: var(--muted);
+		font-size: 15px;
+	}
+
+	/* ---------- Controls ---------- */
+
+	.toolbar {
+		display: flex;
+		flex-wrap: wrap;
+		align-items: center;
+		gap: 14px;
+		margin-bottom: 30px;
+	}
+
+	.segment {
+		display: inline-flex;
+		background: var(--card);
+		border: 1px solid var(--line);
+		border-radius: 999px;
+		padding: 4px;
+		box-shadow: var(--shadow);
+	}
+
+	.segment button {
+		appearance: none;
+		border: none;
+		background: transparent;
+		color: var(--muted);
+		font: inherit;
+		font-size: 14px;
+		font-weight: 600;
+		padding: 8px 18px;
+		border-radius: 999px;
+		cursor: pointer;
+		transition: color 0.18s ease, background 0.18s ease;
+	}
+
+	.segment button.is-active {
+		background: var(--ink);
+		color: var(--paper);
+	}
+
+	.segment.segment--accent button.is-active {
+		background: var(--accent);
+		color: #fff;
+	}
+
+	.toolbar .spacer { flex: 1 1 auto; }
+
+	.autoplay-toggle {
+		display: inline-flex;
+		align-items: center;
+		gap: 9px;
+		font-size: 14px;
+		font-weight: 600;
+		color: var(--muted);
+		cursor: pointer;
+		user-select: none;
+	}
+
+	.switch {
+		position: relative;
+		width: 42px;
+		height: 24px;
+		border-radius: 999px;
+		background: var(--star-empty);
+		transition: background 0.18s ease;
+		flex: 0 0 auto;
+	}
+
+	.switch::after {
+		content: "";
+		position: absolute;
+		top: 3px;
+		left: 3px;
+		width: 18px;
+		height: 18px;
+		border-radius: 50%;
+		background: #fff;
+		box-shadow: 0 1px 3px rgba(0,0,0,0.25);
+		transition: transform 0.18s ease;
+	}
+
+	.autoplay-toggle.is-on .switch { background: var(--accent-2); }
+	.autoplay-toggle.is-on .switch::after { transform: translateX(18px); }
+
+	/* ---------- Reviews shared ---------- */
+
+	.reviews { position: relative; }
+
+	.viewport { overflow: hidden; }
+
+	.track {
+		display: flex;
+		gap: var(--gap);
+		padding: 6px;
+		margin: 0;
+		list-style: none;
+	}
+
+	/* Carousel mode */
+	.reviews.is-carousel .viewport {
+		overflow-x: auto;
+		scroll-snap-type: x mandatory;
+		-webkit-overflow-scrolling: touch;
+		scrollbar-width: none;
+	}
+	.reviews.is-carousel .viewport::-webkit-scrollbar { display: none; }
+
+	.reviews.is-carousel .card {
+		scroll-snap-align: start;
+		flex: 0 0 calc((100% - var(--gap) * 2) / 3);
+	}
+
+	/* Grid mode */
+	.reviews.is-grid .track {
+		display: grid;
+		grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+	}
+
+	/* ---------- Card ---------- */
+
+	.card { min-width: 0; }
+
+	.card-inner {
+		position: relative;
+		display: flex;
+		flex-direction: column;
+		gap: 16px;
+		height: 100%;
+		padding: 26px 26px 24px;
+		background: var(--card);
+		border: 1px solid var(--line);
+		border-radius: var(--radius);
+		box-shadow: var(--shadow);
+	}
+
+	.card-inner::before {
+		content: "\201C";
+		position: absolute;
+		top: 6px;
+		right: 20px;
+		font-family: Georgia, serif;
+		font-size: 84px;
+		line-height: 1;
+		color: var(--line);
+		pointer-events: none;
+	}
+
+	.stars { display: inline-flex; gap: 3px; line-height: 0; }
+	.stars svg { width: 19px; height: 19px; fill: var(--star-empty); }
+	.stars svg.on { fill: var(--star); }
+
+	.quote {
+		flex: 1 1 auto;
+		margin: 0;
+		font-size: 16px;
+		color: var(--ink);
+	}
+
+	.author {
+		display: flex;
+		align-items: center;
+		gap: 13px;
+		margin-top: auto;
+	}
+
+	.avatar {
+		flex: 0 0 auto;
+		width: 50px;
+		height: 50px;
+		border-radius: 50%;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		font-weight: 700;
+		font-size: 19px;
+		color: #fff;
+		text-transform: uppercase;
+		letter-spacing: 0.02em;
+	}
+
+	.meta { display: flex; flex-direction: column; min-width: 0; }
+	.meta .name { font-weight: 700; }
+	.meta .company { font-size: 13px; color: var(--muted); }
+
+	/* ---------- Carousel controls ---------- */
+
+	.controls {
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		gap: 18px;
+		margin-top: 26px;
+	}
+
+	.reviews.is-grid ~ .controls,
+	.reviews.is-grid + .controls { display: none; }
+
+	.nav {
+		appearance: none;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		width: 46px;
+		height: 46px;
+		border-radius: 50%;
+		border: 1px solid var(--line);
+		background: var(--card);
+		color: var(--ink);
+		cursor: pointer;
+		box-shadow: var(--shadow);
+		transition: transform 0.15s ease, color 0.15s ease, border-color 0.15s ease;
+	}
+	.nav:hover, .nav:focus-visible {
+		color: var(--accent);
+		border-color: var(--accent);
+		transform: translateY(-2px);
+		outline: none;
+	}
+
+	.dots { display: inline-flex; align-items: center; gap: 9px; }
+	.dot {
+		appearance: none;
+		width: 9px; height: 9px;
+		border: none; border-radius: 50%;
+		background: var(--star-empty);
+		cursor: pointer;
+		transition: transform 0.15s ease, background 0.15s ease;
+	}
+	.dot:hover { background: var(--muted); }
+	.dot.is-active { background: var(--accent); transform: scale(1.4); }
+
+	/* ---------- Footer note ---------- */
+
+	.note {
+		margin-top: 54px;
+		padding-top: 22px;
+		border-top: 1px solid var(--line);
+		font-size: 13px;
+		color: var(--muted);
+	}
+	.note code {
+		font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+		background: rgba(0,0,0,0.05);
+		padding: 1px 6px;
+		border-radius: 5px;
+	}
+
+	/* ---------- Responsive ---------- */
+
+	@media (max-width: 1024px) {
+		.reviews.is-carousel .card { flex-basis: calc((100% - var(--gap)) / 2); }
+	}
+
+	@media (max-width: 640px) {
+		.wrap { padding: 32px 16px 60px; }
+		.reviews.is-carousel .card { flex-basis: 100%; }
+		.masthead { align-items: flex-start; }
+		.toolbar { gap: 10px; }
+		.autoplay-toggle { width: 100%; justify-content: space-between; }
+	}
+
+	@media (prefers-reduced-motion: reduce) {
+		.reviews.is-carousel .viewport { scroll-behavior: auto; }
+		.nav, .dot, .switch, .switch::after { transition: none; }
+	}
+</style>
+</head>
+<body>
+<div class="wrap">
+	<header class="masthead">
+		<div class="brand">
+			<span class="kicker" data-i18n="kicker">Живые отзывы</span>
+			<h1 data-i18n="title">Что говорят клиенты</h1>
+			<p data-i18n="lead">Демонстрация Gutenberg-блока «Отзывы»: карусель или сетка, автопрокрутка, адаптив и рейтинг звёздами.</p>
+		</div>
+		<div class="segment segment--lang" role="group" aria-label="Language">
+			<button type="button" data-lang="ru" class="is-active">RU</button>
+			<button type="button" data-lang="en">EN</button>
+		</div>
+	</header>
+
+	<div class="toolbar">
+		<div class="segment segment--accent" role="group" aria-label="Layout">
+			<button type="button" data-layout="carousel" class="is-active" data-i18n="layoutCarousel">Карусель</button>
+			<button type="button" data-layout="grid" data-i18n="layoutGrid">Сетка</button>
+		</div>
+		<span class="spacer"></span>
+		<label class="autoplay-toggle is-on" id="autoplayToggle">
+			<span data-i18n="autoplay">Автопрокрутка</span>
+			<span class="switch" aria-hidden="true"></span>
+			<input type="checkbox" checked hidden />
+		</label>
+	</div>
+
+	<section class="reviews is-carousel" id="reviews" aria-label="Отзывы клиентов">
+		<div class="viewport" id="viewport">
+			<ul class="track" id="track"></ul>
+		</div>
+	</section>
+
+	<div class="controls" id="controls">
+		<button class="nav" id="prev" type="button" aria-label="Предыдущий">
+			<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M15 6l-6 6 6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+		</button>
+		<div class="dots" id="dots" role="tablist" aria-label="Навигация"></div>
+		<button class="nav" id="next" type="button" aria-label="Следующий">
+			<svg width="20" height="20" viewBox="0 0 24 24" aria-hidden="true"><path d="M9 6l6 6-6 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+		</button>
+	</div>
+
+	<p class="note" data-i18n="note">Статическая демка для Vercel. В самом плагине те же данные приходят из записей типа <code>testimonial</code>, а разметка формируется на PHP (<code>render.php</code>).</p>
+</div>
+
+<script>
+(function () {
+	'use strict';
+
+	// ---- Content ----------------------------------------------------------
+	var AVATAR_COLORS = ['#d5573b', '#1f6f6b', '#c98a1e', '#5a5296', '#3f7d4e', '#b0464f', '#2c6e9c', '#8a5a2b'];
+
+	var DATA = {
+		ru: [
+			{ name: 'Анна Ковалёва', company: 'Маркетолог, Bloom Studio', rating: 5, text: 'Поставили блок отзывов за вечер. Клиенты наконец видят живые истории, а не сухие звёздочки. Конверсия на лендинге заметно подросла.' },
+			{ name: 'Дмитрий Соколов', company: 'Основатель, Craftline', rating: 5, text: 'Карусель работает плавно даже на слабых телефонах. Никаких тяжёлых библиотек — страница грузится мгновенно.' },
+			{ name: 'Мария Лебедева', company: 'Владелец, «Тёплый хлеб»', rating: 4, text: 'Добавлять отзывы так же просто, как обычные записи. Фото автора — через изображение записи, всё интуитивно.' },
+			{ name: 'Игорь Панов', company: 'Продакт, Finch', rating: 5, text: 'Отдельно порадовала адаптивность: на мобильном карточки перестраиваются в одну колонку без костылей.' },
+			{ name: 'Елена Громова', company: 'Дизайнер, Studio Nord', rating: 5, text: 'Внешний вид легко подогнали под бренд через CSS-переменные. Не пришлось переписывать шаблоны темы.' },
+			{ name: 'Павел Ветров', company: 'Агентство «Пиксель»', rating: 4, text: 'Ставим этот блок клиентам по умолчанию. Переключение «карусель/сетка» экономит кучу времени на согласованиях.' }
+		],
+		en: [
+			{ name: 'Anna Kovaleva', company: 'Marketer, Bloom Studio', rating: 5, text: 'We shipped the reviews block in one evening. Clients finally see real stories instead of dry stars, and landing conversion clearly went up.' },
+			{ name: 'Dmitry Sokolov', company: 'Founder, Craftline', rating: 5, text: 'The carousel is smooth even on low-end phones. No heavy libraries, so the page loads instantly.' },
+			{ name: 'Maria Lebedeva', company: 'Owner, Warm Bread', rating: 4, text: 'Adding a testimonial is as easy as writing a normal post. The author photo is just the featured image — very intuitive.' },
+			{ name: 'Igor Panov', company: 'Product, Finch', rating: 5, text: 'The responsiveness stood out: on mobile the cards collapse into a single column with no hacks at all.' },
+			{ name: 'Elena Gromova', company: 'Designer, Studio Nord', rating: 5, text: 'We matched it to the brand through CSS variables. No need to rewrite the theme templates.' },
+			{ name: 'Pavel Vetrov', company: 'Pixel Agency', rating: 4, text: 'This is now our default block for clients. The carousel/grid switch saves a lot of back-and-forth.' }
+		]
+	};
+
+	var I18N = {
+		ru: {
+			kicker: 'Живые отзывы',
+			title: 'Что говорят клиенты',
+			lead: 'Демонстрация Gutenberg-блока «Отзывы»: карусель или сетка, автопрокрутка, адаптив и рейтинг звёздами.',
+			layoutCarousel: 'Карусель',
+			layoutGrid: 'Сетка',
+			autoplay: 'Автопрокрутка',
+			note: 'Статическая демка для Vercel. В самом плагине те же данные приходят из записей типа <code>testimonial</code>, а разметка формируется на PHP (<code>render.php</code>).',
+			ratingLabel: function (n) { return 'Оценка: ' + n + ' из 5'; },
+			prev: 'Предыдущий', next: 'Следующий', slide: 'Слайд'
+		},
+		en: {
+			kicker: 'Real testimonials',
+			title: 'What clients say',
+			lead: 'A demo of the “Reviews” Gutenberg block: carousel or grid, autoplay, responsive layout and star ratings.',
+			layoutCarousel: 'Carousel',
+			layoutGrid: 'Grid',
+			autoplay: 'Autoplay',
+			note: 'A static demo for Vercel. In the plugin itself the same data comes from <code>testimonial</code> posts and the markup is built in PHP (<code>render.php</code>).',
+			ratingLabel: function (n) { return 'Rating: ' + n + ' out of 5'; },
+			prev: 'Previous', next: 'Next', slide: 'Slide'
+		}
+	};
+
+	// ---- State ------------------------------------------------------------
+	var state = { lang: 'ru', layout: 'carousel', autoplay: true };
+
+	var reviews = document.getElementById('reviews');
+	var track = document.getElementById('track');
+	var viewport = document.getElementById('viewport');
+	var dotsWrap = document.getElementById('dots');
+	var controls = document.getElementById('controls');
+	var prevBtn = document.getElementById('prev');
+	var nextBtn = document.getElementById('next');
+	var autoplayToggle = document.getElementById('autoplayToggle');
+	var reduceMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+	var timer = null;
+
+	function starSVG(on) {
+		return '<svg class="' + (on ? 'on' : '') + '" viewBox="0 0 20 20" aria-hidden="true">' +
+			'<path d="M10 1.5l2.6 5.27 5.82.85-4.21 4.1.99 5.79L10 14.77 4.8 17.5l.99-5.79-4.21-4.1 5.82-.85z"/></svg>';
+	}
+
+	function initials(name) { return name.trim().charAt(0); }
+
+	function renderCards() {
+		var t = I18N[state.lang];
+		var items = DATA[state.lang];
+		track.innerHTML = items.map(function (r, i) {
+			var stars = '';
+			for (var s = 1; s <= 5; s++) { stars += starSVG(s <= r.rating); }
+			var color = AVATAR_COLORS[i % AVATAR_COLORS.length];
+			return '' +
+				'<li class="card"><div class="card-inner">' +
+					'<div class="stars" role="img" aria-label="' + t.ratingLabel(r.rating) + '">' + stars + '</div>' +
+					'<p class="quote">' + r.text + '</p>' +
+					'<div class="author">' +
+						'<span class="avatar" style="background:' + color + '" aria-hidden="true">' + initials(r.name) + '</span>' +
+						'<span class="meta"><span class="name">' + r.name + '</span>' +
+						'<span class="company">' + r.company + '</span></span>' +
+					'</div>' +
+				'</div></li>';
+		}).join('');
+	}
+
+	// ---- Carousel ---------------------------------------------------------
+	function perView() {
+		var card = track.querySelector('.card');
+		if (!card) { return 1; }
+		var w = card.getBoundingClientRect().width;
+		if (!w) { return 1; }
+		return Math.max(1, Math.round(viewport.clientWidth / w));
+	}
+	function pageCount() {
+		return Math.max(1, track.querySelectorAll('.card').length - perView() + 1);
+	}
+	function step() {
+		var card = track.querySelector('.card');
+		if (!card) { return 0; }
+		var w = card.getBoundingClientRect().width;
+		var gap = parseFloat(getComputedStyle(track).columnGap || '0') || 0;
+		return w + gap;
+	}
+	function currentIndex() {
+		var s = step();
+		return s ? Math.round(viewport.scrollLeft / s) : 0;
+	}
+	function goTo(i) {
+		var max = pageCount() - 1;
+		if (i < 0) { i = max; }
+		if (i > max) { i = 0; }
+		viewport.scrollTo({ left: i * step(), behavior: reduceMotion ? 'auto' : 'smooth' });
+	}
+	function buildDots() {
+		dotsWrap.innerHTML = '';
+		var t = I18N[state.lang];
+		var pages = pageCount();
+		for (var i = 0; i < pages; i++) {
+			(function (i) {
+				var d = document.createElement('button');
+				d.type = 'button';
+				d.className = 'dot';
+				d.setAttribute('role', 'tab');
+				d.setAttribute('aria-label', t.slide + ' ' + (i + 1));
+				d.addEventListener('click', function () { goTo(i); restart(); });
+				dotsWrap.appendChild(d);
+			})(i);
+		}
+		updateDots();
+	}
+	function updateDots() {
+		var dots = dotsWrap.querySelectorAll('.dot');
+		var idx = currentIndex();
+		for (var i = 0; i < dots.length; i++) {
+			var on = i === idx;
+			dots[i].classList.toggle('is-active', on);
+			dots[i].setAttribute('aria-selected', on ? 'true' : 'false');
+		}
+	}
+	function tick() {
+		var next = currentIndex() + 1;
+		if (next > pageCount() - 1) { next = 0; }
+		goTo(next);
+	}
+	function start() {
+		if (!state.autoplay || state.layout !== 'carousel' || reduceMotion || timer) { return; }
+		timer = window.setInterval(tick, 4200);
+	}
+	function stop() { if (timer) { window.clearInterval(timer); timer = null; } }
+	function restart() { stop(); start(); }
+
+	// ---- Layout / language ------------------------------------------------
+	function applyLayout() {
+		reviews.classList.toggle('is-carousel', state.layout === 'carousel');
+		reviews.classList.toggle('is-grid', state.layout === 'grid');
+		controls.style.display = state.layout === 'carousel' ? 'flex' : 'none';
+		if (state.layout === 'carousel') { buildDots(); start(); } else { stop(); }
+	}
+
+	function applyLang() {
+		document.documentElement.lang = state.lang;
+		var t = I18N[state.lang];
+		document.querySelectorAll('[data-i18n]').forEach(function (node) {
+			var key = node.getAttribute('data-i18n');
+			if (t[key] != null) { node.innerHTML = t[key]; }
+		});
+		prevBtn.setAttribute('aria-label', t.prev);
+		nextBtn.setAttribute('aria-label', t.next);
+		renderCards();
+		viewport.scrollLeft = 0;
+		if (state.layout === 'carousel') { buildDots(); restart(); }
+	}
+
+	// ---- Wire up ----------------------------------------------------------
+	document.querySelectorAll('.segment--lang button').forEach(function (b) {
+		b.addEventListener('click', function () {
+			state.lang = b.getAttribute('data-lang');
+			document.querySelectorAll('.segment--lang button').forEach(function (x) {
+				x.classList.toggle('is-active', x === b);
+			});
+			applyLang();
+		});
+	});
+
+	document.querySelectorAll('.segment--accent button').forEach(function (b) {
+		b.addEventListener('click', function () {
+			state.layout = b.getAttribute('data-layout');
+			document.querySelectorAll('.segment--accent button').forEach(function (x) {
+				x.classList.toggle('is-active', x === b);
+			});
+			applyLayout();
+		});
+	});
+
+	autoplayToggle.addEventListener('click', function (e) {
+		e.preventDefault();
+		state.autoplay = !state.autoplay;
+		autoplayToggle.classList.toggle('is-on', state.autoplay);
+		autoplayToggle.querySelector('input').checked = state.autoplay;
+		restart();
+	});
+
+	prevBtn.addEventListener('click', function () { goTo(currentIndex() - 1); restart(); });
+	nextBtn.addEventListener('click', function () { goTo(currentIndex() + 1); restart(); });
+
+	reviews.addEventListener('mouseenter', stop);
+	reviews.addEventListener('mouseleave', start);
+	reviews.addEventListener('focusin', stop);
+	reviews.addEventListener('focusout', start);
+
+	var scrolling = false;
+	viewport.addEventListener('scroll', function () {
+		if (scrolling) { return; }
+		scrolling = true;
+		window.requestAnimationFrame(function () { updateDots(); scrolling = false; });
+	}, { passive: true });
+
+	var rz = null;
+	window.addEventListener('resize', function () {
+		window.clearTimeout(rz);
+		rz = window.setTimeout(function () { if (state.layout === 'carousel') { buildDots(); } }, 200);
+	});
+
+	document.addEventListener('visibilitychange', function () {
+		if (document.hidden) { stop(); } else { start(); }
+	});
+
+	// ---- Boot -------------------------------------------------------------
+	applyLang();
+	applyLayout();
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,149 @@
+# Copyright (C) 2026 Tercia
+# This file is distributed under the GPL-2.0-or-later license.
+msgid ""
+msgstr ""
+"Project-Id-Version: Reviews Block — Отзывы 1.0.0\n"
+"Report-Msgid-Bugs-To: https://example.com/reviews-block\n"
+"POT-Creation-Date: 2026-08-02T00:00:00+00:00\n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"X-Domain: reviews-block\n"
+
+#. Plugin Name of the plugin
+msgid "Reviews Block — Отзывы"
+msgstr ""
+
+#: includes/class-cpt.php:35 includes/class-cpt.php:37
+msgid "Отзывы"
+msgstr ""
+
+#: includes/class-cpt.php:36
+msgid "Отзыв"
+msgstr ""
+
+#: includes/class-cpt.php:38
+msgid "Добавить отзыв"
+msgstr ""
+
+#: includes/class-cpt.php:39
+msgid "Добавить новый отзыв"
+msgstr ""
+
+#: includes/class-cpt.php:40
+msgid "Редактировать отзыв"
+msgstr ""
+
+#: includes/class-cpt.php:41
+msgid "Новый отзыв"
+msgstr ""
+
+#: includes/class-cpt.php:42
+msgid "Просмотреть отзыв"
+msgstr ""
+
+#: includes/class-cpt.php:43
+msgid "Искать отзывы"
+msgstr ""
+
+#: includes/class-cpt.php:44
+msgid "Отзывы не найдены"
+msgstr ""
+
+#: includes/class-cpt.php:45
+msgid "В корзине отзывов нет"
+msgstr ""
+
+#: includes/class-cpt.php:46
+msgid "Все отзывы"
+msgstr ""
+
+#: includes/class-cpt.php:47
+msgid "Фото автора"
+msgstr ""
+
+#: includes/class-cpt.php:48
+msgid "Задать фото автора"
+msgstr ""
+
+#: includes/class-cpt.php:49
+msgid "Удалить фото автора"
+msgstr ""
+
+#: includes/class-cpt.php:50
+msgid "Использовать как фото автора"
+msgstr ""
+
+#: includes/class-cpt.php:78
+msgid "Оценка от 1 до 5"
+msgstr ""
+
+#: includes/class-cpt.php:94 includes/class-cpt.php:162
+msgid "Компания / должность"
+msgstr ""
+
+#: includes/class-cpt.php:129
+msgid "Детали отзыва"
+msgstr ""
+
+#: includes/class-cpt.php:152
+msgid "Оценка (1–5)"
+msgstr ""
+
+#: includes/class-cpt.php:165
+msgid "Например: CEO, Acme Inc."
+msgstr ""
+
+#: includes/class-cpt.php:168
+msgid "Фото автора задаётся через «Изображение записи» (featured image)."
+msgstr ""
+
+#. translators: %d: rating value 1-5
+#: includes/render.php:21
+msgid "Оценка: %d из 5"
+msgstr ""
+
+#: includes/render.php:70
+msgid "Пока нет отзывов. Добавьте записи типа «Отзыв»."
+msgstr ""
+
+#: includes/render.php:146
+msgid "Предыдущий отзыв"
+msgstr ""
+
+#: includes/render.php:149
+msgid "Навигация по отзывам"
+msgstr ""
+
+#: includes/render.php:150
+msgid "Следующий отзыв"
+msgstr ""
+
+#: assets/editor.js:33
+msgid "Настройки отзывов"
+msgstr ""
+
+#: assets/editor.js:35
+msgid "Количество отзывов"
+msgstr ""
+
+#: assets/editor.js:44
+msgid "Вид"
+msgstr ""
+
+#: assets/editor.js:47
+msgid "Карусель"
+msgstr ""
+
+#: assets/editor.js:48
+msgid "Сетка"
+msgstr ""
+
+#: assets/editor.js:56
+msgid "Автопрокрутка"
+msgstr ""
+
+#: assets/editor.js:65
+msgid "Интервал, мс"
+msgstr ""

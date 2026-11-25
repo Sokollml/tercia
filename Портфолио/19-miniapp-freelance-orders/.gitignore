@@ -1,0 +1,35 @@
+# ---- Секреты и локальные конфиги ----
+.env
+.env.local
+collector/config.yaml          # список чатов — приватный, в репо только config.example.yaml
+
+# ---- Telegram-сессия userbot-а (НИКОГДА не коммитить!) ----
+*.session
+*.session-journal
+data/
+session/
+
+# ---- Python ----
+__pycache__/
+*.py[cod]
+.pytest_cache/
+.venv/
+venv/
+*.egg-info/
+
+# ---- Node / Vite (miniapp) ----
+node_modules/
+dist/
+.vite/
+*.local
+
+# ---- macOS / внешний диск ----
+.DS_Store
+._*
+.Spotlight-V100
+.Trashes
+
+# ---- Редакторы ----
+.idea/
+.vscode/
+*.swp

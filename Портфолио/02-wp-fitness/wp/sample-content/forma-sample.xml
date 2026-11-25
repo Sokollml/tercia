@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  FORMA — демо-контент для импорта через «Инструменты → Импорт → WordPress».
+  Содержит: типы «Тренер» (trainer) и «Занятие» (class), термины таксономии class_type,
+  мета-поля _forma_day / _forma_time / _forma_spec.
+
+  ВАЖНО про связь занятие→тренер:
+  мета _forma_trainer_id ссылается на ID тренера, а при импорте WordPress выдаёт НОВЫЕ ID.
+  Поэтому после импорта откройте каждое занятие и выберите тренера в выпадающем списке
+  (блок «Детали занятия» справа). Это займёт пару минут. Подробности в docs/import-instructions.md.
+-->
+<rss version="2.0"
+	xmlns:excerpt="http://wordpress.org/export/1.2/excerpt/"
+	xmlns:content="http://purl.org/rss/1.0/modules/content/"
+	xmlns:wfw="http://wellformedweb.org/CommentAPI/"
+	xmlns:dc="http://purl.org/dc/elements/1.1/"
+	xmlns:wp="http://wordpress.org/export/1.2/">
+<channel>
+	<title>FORMA Studio</title>
+	<link>https://forma-studio.ru</link>
+	<description>Демо-контент студии FORMA</description>
+	<pubDate>Mon, 02 Aug 2026 09:00:00 +0000</pubDate>
+	<language>ru-RU</language>
+	<wp:wxr_version>1.2</wp:wxr_version>
+	<wp:base_site_url>https://forma-studio.ru</wp:base_site_url>
+	<wp:base_blog_url>https://forma-studio.ru</wp:base_blog_url>
+
+	<wp:author>
+		<wp:author_id>1</wp:author_id>
+		<wp:author_login><![CDATA[admin]]></wp:author_login>
+		<wp:author_email><![CDATA[admin@forma-studio.ru]]></wp:author_email>
+		<wp:author_display_name><![CDATA[FORMA]]></wp:author_display_name>
+	</wp:author>
+
+	<!-- Термины таксономии «Тип тренировки» -->
+	<wp:term><wp:term_id>101</wp:term_id><wp:term_taxonomy>class_type</wp:term_taxonomy><wp:term_slug>strength</wp:term_slug><wp:term_name><![CDATA[Сила]]></wp:term_name></wp:term>
+	<wp:term><wp:term_id>102</wp:term_id><wp:term_taxonomy>class_type</wp:term_taxonomy><wp:term_slug>cardio</wp:term_slug><wp:term_name><![CDATA[Кардио]]></wp:term_name></wp:term>
+	<wp:term><wp:term_id>103</wp:term_id><wp:term_taxonomy>class_type</wp:term_taxonomy><wp:term_slug>mind</wp:term_slug><wp:term_name><![CDATA[Тело и ум]]></wp:term_name></wp:term>
+	<wp:term><wp:term_id>104</wp:term_id><wp:term_taxonomy>class_type</wp:term_taxonomy><wp:term_slug>dance</wp:term_slug><wp:term_name><![CDATA[Танцы]]></wp:term_name></wp:term>
+
+	<!-- ================= ТРЕНЕРЫ ================= -->
+	<item>
+		<title>Артём Лебедев</title>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<content:encoded><![CDATA[10 лет в силовых видах спорта. Ставит технику базовых движений и убеждён, что тяжёлое становится лёгким, когда есть система.]]></content:encoded>
+		<wp:post_id>201</wp:post_id>
+		<wp:post_date><![CDATA[2026-08-01 10:00:00]]></wp:post_date>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[trainer]]></wp:post_type>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_spec]]></wp:meta_key><wp:meta_value><![CDATA[Функциональный тренинг, TRX]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title>Марина Котова</title>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<content:encoded><![CDATA[Мастер спорта по лёгкой атлетике. Её интервальные тренировки любят за драйв и честный, но бережный подход к нагрузке.]]></content:encoded>
+		<wp:post_id>202</wp:post_id>
+		<wp:post_date><![CDATA[2026-08-01 10:05:00]]></wp:post_date>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[trainer]]></wp:post_type>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_spec]]></wp:meta_key><wp:meta_value><![CDATA[HIIT, сайклинг]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title>Ника Орлова</title>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<content:encoded><![CDATA[Преподаёт йогу с 2015 года. Помогает вернуть телу подвижность и мягко снять напряжение после рабочего дня.]]></content:encoded>
+		<wp:post_id>203</wp:post_id>
+		<wp:post_date><![CDATA[2026-08-01 10:10:00]]></wp:post_date>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[trainer]]></wp:post_type>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_spec]]></wp:meta_key><wp:meta_value><![CDATA[Йога, пилатес, стретчинг]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title>Дарья Сомова</title>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<content:encoded><![CDATA[Хореограф с театральным бэкграундом. На её занятиях забываешь, что это тренировка, — просто танцуешь и потеешь.]]></content:encoded>
+		<wp:post_id>204</wp:post_id>
+		<wp:post_date><![CDATA[2026-08-01 10:15:00]]></wp:post_date>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[trainer]]></wp:post_type>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_spec]]></wp:meta_key><wp:meta_value><![CDATA[Zumba, contemporary]]></wp:meta_value></wp:postmeta>
+	</item>
+
+	<!-- ================= ЗАНЯТИЯ ================= -->
+	<item>
+		<title>Утренний HIIT</title>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<content:encoded><![CDATA[Короткие взрывные интервалы, чтобы проснуться и разогнать метаболизм.]]></content:encoded>
+		<wp:post_id>301</wp:post_id>
+		<wp:post_date><![CDATA[2026-08-01 11:00:00]]></wp:post_date>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[class]]></wp:post_type>
+		<category domain="class_type" nicename="cardio"><![CDATA[Кардио]]></category>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_day]]></wp:meta_key><wp:meta_value><![CDATA[mon]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_time]]></wp:meta_key><wp:meta_value><![CDATA[08:00]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_trainer_id]]></wp:meta_key><wp:meta_value><![CDATA[202]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title>Функциональный тренинг</title>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<content:encoded><![CDATA[Базовые движения с весом тела и снарядами.]]></content:encoded>
+		<wp:post_id>302</wp:post_id>
+		<wp:post_date><![CDATA[2026-08-01 11:05:00]]></wp:post_date>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[class]]></wp:post_type>
+		<category domain="class_type" nicename="strength"><![CDATA[Сила]]></category>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_day]]></wp:meta_key><wp:meta_value><![CDATA[mon]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_time]]></wp:meta_key><wp:meta_value><![CDATA[12:30]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_trainer_id]]></wp:meta_key><wp:meta_value><![CDATA[201]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title>Хатха-йога</title>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<content:encoded><![CDATA[Мягкая практика на гибкость и дыхание в конце дня.]]></content:encoded>
+		<wp:post_id>303</wp:post_id>
+		<wp:post_date><![CDATA[2026-08-01 11:10:00]]></wp:post_date>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[class]]></wp:post_type>
+		<category domain="class_type" nicename="mind"><![CDATA[Тело и ум]]></category>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_day]]></wp:meta_key><wp:meta_value><![CDATA[mon]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_time]]></wp:meta_key><wp:meta_value><![CDATA[19:00]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_trainer_id]]></wp:meta_key><wp:meta_value><![CDATA[203]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title>Силовой блок</title>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<content:encoded><![CDATA[Работа со свободными весами и техника подъёмов.]]></content:encoded>
+		<wp:post_id>304</wp:post_id>
+		<wp:post_date><![CDATA[2026-08-01 11:15:00]]></wp:post_date>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[class]]></wp:post_type>
+		<category domain="class_type" nicename="strength"><![CDATA[Сила]]></category>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_day]]></wp:meta_key><wp:meta_value><![CDATA[tue]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_time]]></wp:meta_key><wp:meta_value><![CDATA[09:00]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_trainer_id]]></wp:meta_key><wp:meta_value><![CDATA[201]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title>Zumba</title>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<content:encoded><![CDATA[Танцевальный кардио-заряд под латину.]]></content:encoded>
+		<wp:post_id>305</wp:post_id>
+		<wp:post_date><![CDATA[2026-08-01 11:20:00]]></wp:post_date>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[class]]></wp:post_type>
+		<category domain="class_type" nicename="dance"><![CDATA[Танцы]]></category>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_day]]></wp:meta_key><wp:meta_value><![CDATA[tue]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_time]]></wp:meta_key><wp:meta_value><![CDATA[18:00]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_trainer_id]]></wp:meta_key><wp:meta_value><![CDATA[204]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title>Пилатес</title>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<content:encoded><![CDATA[Глубокие мышцы кора и осанка.]]></content:encoded>
+		<wp:post_id>306</wp:post_id>
+		<wp:post_date><![CDATA[2026-08-01 11:25:00]]></wp:post_date>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[class]]></wp:post_type>
+		<category domain="class_type" nicename="mind"><![CDATA[Тело и ум]]></category>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_day]]></wp:meta_key><wp:meta_value><![CDATA[wed]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_time]]></wp:meta_key><wp:meta_value><![CDATA[08:00]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_trainer_id]]></wp:meta_key><wp:meta_value><![CDATA[203]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title>TRX-петли</title>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<content:encoded><![CDATA[Тренировка в подвесе на контроль тела.]]></content:encoded>
+		<wp:post_id>307</wp:post_id>
+		<wp:post_date><![CDATA[2026-08-01 11:30:00]]></wp:post_date>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[class]]></wp:post_type>
+		<category domain="class_type" nicename="strength"><![CDATA[Сила]]></category>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_day]]></wp:meta_key><wp:meta_value><![CDATA[wed]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_time]]></wp:meta_key><wp:meta_value><![CDATA[19:00]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_trainer_id]]></wp:meta_key><wp:meta_value><![CDATA[201]]></wp:meta_value></wp:postmeta>
+	</item>
+	<item>
+		<title>Сайклинг</title>
+		<dc:creator><![CDATA[admin]]></dc:creator>
+		<content:encoded><![CDATA[Групповой заезд под музыку.]]></content:encoded>
+		<wp:post_id>308</wp:post_id>
+		<wp:post_date><![CDATA[2026-08-01 11:35:00]]></wp:post_date>
+		<wp:status><![CDATA[publish]]></wp:status>
+		<wp:post_type><![CDATA[class]]></wp:post_type>
+		<category domain="class_type" nicename="cardio"><![CDATA[Кардио]]></category>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_day]]></wp:meta_key><wp:meta_value><![CDATA[sun]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_time]]></wp:meta_key><wp:meta_value><![CDATA[11:00]]></wp:meta_value></wp:postmeta>
+		<wp:postmeta><wp:meta_key><![CDATA[_forma_trainer_id]]></wp:meta_key><wp:meta_value><![CDATA[202]]></wp:meta_value></wp:postmeta>
+	</item>
+
+</channel>
+</rss>

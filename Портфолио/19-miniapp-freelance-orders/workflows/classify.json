@@ -1,0 +1,181 @@
+{
+  "name": "Freelance Orders — Classify",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            { "field": "minutes", "minutesInterval": 5 }
+          ]
+        }
+      },
+      "id": "a1000000-0000-4000-8000-000000000001",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-360, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, chat, author, text, message_link\nFROM raw_messages\nWHERE status = 'pending'\nORDER BY created_at ASC\nLIMIT 20;",
+        "options": {}
+      },
+      "id": "a1000000-0000-4000-8000-000000000002",
+      "name": "Get Pending",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [-140, 300],
+      "credentials": {
+        "postgres": { "id": "PG_CRED_ID", "name": "Freelance Postgres" }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Сообщение для классификации:\n---\n{{ $json.text }}\n---",
+        "options": {
+          "systemMessage": "Ты — классификатор сообщений из чатов, где ищут исполнителей на фриланс. Определи, является ли сообщение ЗАКАЗОМ (кто-то ищет исполнителя/услугу), и извлеки структуру.\n\nВерни СТРОГО один JSON-объект и ничего больше. Без markdown, без ```-обёрток, без пояснений.\n\nСхема:\n{\n  \"is_order\": true,\n  \"service_type\": \"design | dev | copywriting | smm | video | marketing | audio | 3d | other | null\",\n  \"summary\": \"краткий бриф своими словами, 1-2 предложения на русском\",\n  \"budget\": \"число в рублях без валюты, либо null\",\n  \"urgency\": \"low | medium | high\",\n  \"languages\": [\"ru\", \"en\"],\n  \"skills_required\": [\"figma\", \"react\"]\n}\n\nПравила:\n- is_order=false для резюме исполнителя, рекламы услуг, вопросов, оффтопа, штатных вакансий без разовой задачи.\n- is_order=true только когда автор ИЩЕТ исполнителя на конкретную задачу.\n- service_type — одна категория; непонятно -> other; is_order=false -> null.\n- budget — только число; «10-15к» -> 10000; договорная/не указан -> null.\n- urgency: срочно/горит/asap -> high; дедлайн в пределах недели -> medium; иначе low.\n- languages — если явно не сказано -> [\"ru\"].\n- skills_required — инструменты/технологии в нижнем регистре; нет конкретики -> [].\n- Чего нет — null или []. Не выдумывай."
+        }
+      },
+      "id": "a1000000-0000-4000-8000-000000000003",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 1.7,
+      "position": [120, 300]
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-4o-mini",
+          "mode": "list"
+        },
+        "options": { "temperature": 0 }
+      },
+      "id": "a1000000-0000-4000-8000-000000000004",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [120, 500],
+      "credentials": {
+        "openAiApi": { "id": "LLM_CRED_ID", "name": "LLM (OpenAI-compatible)" }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Парсинг ответа ИИ + fallback. Зеркало collector/classifier_parse.py.\n// Никогда не бросает: при кривом ответе модели is_order=false.\nconst VALID_URGENCY = new Set(['low', 'medium', 'high']);\n\nfunction extractJson(raw) {\n  if (!raw) return null;\n  const fenced = raw.match(/```(?:json)?\\s*(\\{[\\s\\S]*?\\})\\s*```/);\n  if (fenced) return fenced[1];\n  const start = raw.indexOf('{');\n  const end = raw.lastIndexOf('}');\n  if (start !== -1 && end !== -1 && end > start) return raw.slice(start, end + 1);\n  return null;\n}\n\nfunction toFloatOrNull(v) {\n  if (v === null || v === undefined) return null;\n  if (typeof v === 'number') return v;\n  if (typeof v === 'string') {\n    const digits = v.replace(/,/g, '.').replace(/[^\\d.]/g, '');\n    if (digits === '' || digits === '.') return null;\n    const n = parseFloat(digits);\n    return Number.isNaN(n) ? null : n;\n  }\n  return null;\n}\n\nfunction toStrList(v) {\n  if (Array.isArray(v)) return v.map((x) => String(x).trim().toLowerCase()).filter(Boolean);\n  if (typeof v === 'string' && v.trim()) return [v.trim().toLowerCase()];\n  return [];\n}\n\nfunction parseOutput(raw) {\n  const def = { is_order: false, service_type: null, summary: null, budget: null, urgency: 'low', languages: [], skills_required: [] };\n  const blob = extractJson(raw);\n  if (!blob) return def;\n  let data;\n  try { data = JSON.parse(blob); } catch (e) { return def; }\n  if (typeof data !== 'object' || data === null || Array.isArray(data)) return def;\n  const urgency = String(data.urgency || 'low').trim().toLowerCase();\n  const st = data.service_type;\n  const summary = data.summary;\n  return {\n    is_order: Boolean(data.is_order),\n    service_type: (st && st !== 'null') ? String(st).trim() : null,\n    summary: (summary && summary !== 'null') ? String(summary).trim() : null,\n    budget: toFloatOrNull(data.budget),\n    urgency: VALID_URGENCY.has(urgency) ? urgency : 'low',\n    languages: toStrList(data.languages),\n    skills_required: toStrList(data.skills_required),\n  };\n}\n\nconst out = [];\nfor (const item of $input.all()) {\n  const src = item.json;\n  const rawOutput = typeof src.output === 'string' ? src.output : JSON.stringify(src.output || '');\n  const parsed = parseOutput(rawOutput);\n  const meta = $('Get Pending').itemMatching(out.length) ? $('Get Pending').itemMatching(out.length).json : src;\n  out.push({\n    json: {\n      raw_message_id: meta.id,\n      source_chat: meta.chat,\n      author_username: meta.author,\n      raw_text: meta.text,\n      message_link: meta.message_link,\n      ...parsed,\n    },\n  });\n}\nreturn out;"
+      },
+      "id": "a1000000-0000-4000-8000-000000000005",
+      "name": "Parse + Fallback",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [380, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": { "caseSensitive": true, "typeValidation": "loose", "version": 2 },
+          "conditions": [
+            {
+              "id": "cond-is-order",
+              "leftValue": "={{ $json.is_order }}",
+              "rightValue": "",
+              "operator": { "type": "boolean", "operation": "true", "singleValue": true }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "a1000000-0000-4000-8000-000000000006",
+      "name": "Is Order?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [600, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "INSERT INTO orders\n  (raw_message_id, source_chat, author_username, raw_text, service_type, summary, budget, urgency, languages, skills_required, message_link)\nVALUES\n  ($1, $2, $3, $4, $5, $6, $7, $8, $9::jsonb, $10::jsonb, $11)\nRETURNING id;",
+        "options": {
+          "queryReplacement": "={{ $json.raw_message_id }},={{ $json.source_chat }},={{ $json.author_username }},={{ $json.raw_text }},={{ $json.service_type }},={{ $json.summary }},={{ $json.budget }},={{ $json.urgency }},={{ JSON.stringify($json.languages) }},={{ JSON.stringify($json.skills_required) }},={{ $json.message_link }}"
+        }
+      },
+      "id": "a1000000-0000-4000-8000-000000000007",
+      "name": "Insert Order",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [840, 200],
+      "credentials": {
+        "postgres": { "id": "PG_CRED_ID", "name": "Freelance Postgres" }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE raw_messages SET status = 'done' WHERE id = $1;",
+        "options": {
+          "queryReplacement": "={{ $json.raw_message_id }}"
+        }
+      },
+      "id": "a1000000-0000-4000-8000-000000000008",
+      "name": "Mark Done",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [1060, 200],
+      "credentials": {
+        "postgres": { "id": "PG_CRED_ID", "name": "Freelance Postgres" }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE raw_messages SET status = 'skipped' WHERE id = $1;",
+        "options": {
+          "queryReplacement": "={{ $json.raw_message_id }}"
+        }
+      },
+      "id": "a1000000-0000-4000-8000-000000000009",
+      "name": "Mark Skipped",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.4,
+      "position": [840, 420],
+      "credentials": {
+        "postgres": { "id": "PG_CRED_ID", "name": "Freelance Postgres" }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [[{ "node": "Get Pending", "type": "main", "index": 0 }]]
+    },
+    "Get Pending": {
+      "main": [[{ "node": "AI Agent", "type": "main", "index": 0 }]]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [[{ "node": "AI Agent", "type": "ai_languageModel", "index": 0 }]]
+    },
+    "AI Agent": {
+      "main": [[{ "node": "Parse + Fallback", "type": "main", "index": 0 }]]
+    },
+    "Parse + Fallback": {
+      "main": [[{ "node": "Is Order?", "type": "main", "index": 0 }]]
+    },
+    "Is Order?": {
+      "main": [
+        [{ "node": "Insert Order", "type": "main", "index": 0 }],
+        [{ "node": "Mark Skipped", "type": "main", "index": 0 }]
+      ]
+    },
+    "Insert Order": {
+      "main": [[{ "node": "Mark Done", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": { "executionOrder": "v1" },
+  "pinData": {},
+  "meta": {
+    "description": "Раз в 5 минут берёт необработанные сообщения из raw_messages, классифицирует ИИ-агентом (строгий JSON), парсит с fallback, пишет заказы в orders и помечает исходники обработанными."
+  }
+}

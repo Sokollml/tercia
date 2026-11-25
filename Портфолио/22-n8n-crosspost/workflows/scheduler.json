@@ -1,0 +1,119 @@
+{
+  "name": "Crosspost — планировщик отложенных постов",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "id": "072d1530-a457-484b-a923-6144f99a782c",
+      "name": "Schedule каждую минуту",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [-200, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT id, text, media_url, media_type, channels, publish_at, retry_count\nFROM posts\nWHERE status = 'queued'\n  AND publish_at <= now()\nORDER BY publish_at ASC\nLIMIT 20;",
+        "options": {}
+      },
+      "id": "f3e94c27-28f7-448d-9999-990a48edb1fb",
+      "name": "SELECT постов к публикации",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [40, 300],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_POSTGRES_CRED_ID",
+          "name": "Postgres (crosspost)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHANNEL_ID || '@your_channel_placeholder' }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "id": "1ab55752-7d64-493a-8caf-98a4e8ca3c25",
+      "name": "Публикация в Telegram-канал",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [320, 300],
+      "onError": "continueErrorOutput",
+      "credentials": {
+        "telegramApi": {
+          "id": "REPLACE_TELEGRAM_CRED_ID",
+          "name": "Telegram Bot (приёмник)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "UPDATE posts\nSET status = 'published',\n    published_at = now(),\n    last_error = NULL,\n    result = $2::jsonb\nWHERE id = $1\nRETURNING id, status, published_at;",
+        "options": {
+          "queryReplacement": "={{ $('SELECT постов к публикации').item.json.id }},={{ JSON.stringify($json) }}"
+        }
+      },
+      "id": "0b4e8f15-bd79-46bb-bf07-940752d01937",
+      "name": "UPDATE = published",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [620, 180],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_POSTGRES_CRED_ID",
+          "name": "Postgres (crosspost)"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- retry: до 3 попыток пост остаётся 'queued', затем помечается 'error'\nUPDATE posts\nSET retry_count = retry_count + 1,\n    last_error  = $2,\n    status      = CASE WHEN retry_count + 1 >= 3 THEN 'error' ELSE 'queued' END\nWHERE id = $1\nRETURNING id, status, retry_count, last_error;",
+        "options": {
+          "queryReplacement": "={{ $('SELECT постов к публикации').item.json.id }},={{ ($json.error && $json.error.message) || JSON.stringify($json) }}"
+        }
+      },
+      "id": "632e857e-4203-4b0c-8ec5-90f947819672",
+      "name": "UPDATE = error / retry",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [620, 420],
+      "credentials": {
+        "postgres": {
+          "id": "REPLACE_POSTGRES_CRED_ID",
+          "name": "Postgres (crosspost)"
+        }
+      }
+    }
+  ],
+  "connections": {
+    "Schedule каждую минуту": {
+      "main": [[{ "node": "SELECT постов к публикации", "type": "main", "index": 0 }]]
+    },
+    "SELECT постов к публикации": {
+      "main": [[{ "node": "Публикация в Telegram-канал", "type": "main", "index": 0 }]]
+    },
+    "Публикация в Telegram-канал": {
+      "main": [
+        [{ "node": "UPDATE = published", "type": "main", "index": 0 }],
+        [{ "node": "UPDATE = error / retry", "type": "main", "index": 0 }]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

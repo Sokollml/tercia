@@ -1,0 +1,230 @@
+{
+  "name": "Monitor Source + Scheduled Report",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "id": "bae7218e-4795-4ca9-b25b-6d1d1cb1e8c5",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [0, 300]
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "src-key",
+              "name": "sourceKey",
+              "value": "remotive-remote-jobs",
+              "type": "string"
+            },
+            {
+              "id": "src-url",
+              "name": "sourceUrl",
+              "value": "https://remotive.com/api/remote-jobs?limit=50",
+              "type": "string"
+            },
+            {
+              "id": "src-cat",
+              "name": "category",
+              "value": "software-dev",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "f45e1daa-b069-442e-b035-ba5eef591b3d",
+      "name": "Source Config",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [220, 300]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "={{ $json.sourceUrl }}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "n8n-monitor-report/1.0 (portfolio demo)"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "id": "02d98d85-24af-4d03-ad38-0ea401a32ff6",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [440, 300],
+      "retryOnFail": true,
+      "maxTries": 4,
+      "waitBetweenTries": 5000
+    },
+    {
+      "parameters": {
+        "jsCode": "// Нормализация ответа источника в единый формат item.\n// Демо-источник: Remotive Remote Jobs API (публичный JSON).\n// Формат ответа: { jobs: [ { id, title, company_name, salary, url, publication_date, ... } ] }\n\nconst sourceKey = $('Source Config').first().json.sourceKey;\nconst raw = $input.first().json;\nconst jobs = Array.isArray(raw.jobs) ? raw.jobs : [];\n\n// Троттлинг на входе: ограничиваем объём обрабатываемых записей за прогон.\nconst MAX_ITEMS = 50;\n\nconst seen = new Set();\nconst out = [];\n\nfor (const j of jobs.slice(0, MAX_ITEMS)) {\n  // externalId — стабильный идентификатор записи у источника (дедуп).\n  const externalId = String(j.id ?? j.url ?? '').trim();\n  if (!externalId || seen.has(externalId)) continue; // дедуп внутри одного прогона\n  seen.add(externalId);\n\n  // price: у вакансий зарплата часто строкой/пустая — приводим к числу либо null.\n  let price = null;\n  if (j.salary != null && String(j.salary).trim() !== '') {\n    const num = String(j.salary).replace(/[^0-9.]/g, '');\n    price = num ? Number(num) : null;\n  }\n\n  // fingerprint — хэш значимых полей для детекта \"обновилось\".\n  const title = (j.title ?? '').trim();\n  const company = (j.company_name ?? '').trim();\n  const fpSource = [title, company, price ?? '', (j.candidate_required_location ?? '')].join('|');\n\n  out.push({\n    json: {\n      sourceKey,\n      externalId,\n      title,\n      company,\n      price,\n      url: (j.url ?? '').trim(),\n      published_at: j.publication_date ?? null,\n      fingerprint: fpSource,\n    },\n  });\n}\n\nif (out.length === 0) {\n  throw new Error('Источник вернул 0 нормализованных записей — проверьте URL/формат API');\n}\n\nreturn out;"
+      },
+      "id": "cef5ce9d-43c3-463c-942c-af500527c6dd",
+      "name": "Normalize Items",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [660, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "SELECT external_id, title, company, price, url, fingerprint\nFROM monitor_items\nWHERE source_key = $1 AND is_active = true;",
+        "options": {
+          "queryReplacement": "={{ $('Source Config').first().json.sourceKey }}"
+        }
+      },
+      "id": "0b0c8d98-246d-4826-8b8b-37df01706be4",
+      "name": "Load Previous Snapshot",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [880, 300],
+      "alwaysOutputData": true
+    },
+    {
+      "parameters": {
+        "jsCode": "// Детект изменений: сравниваем текущий прогон (Normalize Items)\n// с прошлым снапшотом из БД (Load Previous Snapshot).\n\nconst current = $('Normalize Items').all().map(i => i.json);\nconst previous = $input.all().map(i => i.json).filter(r => r && r.external_id);\n\nconst prevById = new Map(previous.map(r => [String(r.external_id), r]));\nconst curById = new Map(current.map(r => [String(r.externalId), r]));\n\nconst added = [];\nconst changed = [];\nconst removed = [];\n\n// новое и изменившееся\nfor (const [id, cur] of curById) {\n  const prev = prevById.get(id);\n  if (!prev) {\n    added.push(cur);\n    continue;\n  }\n  const prevPrice = prev.price == null ? null : Number(prev.price);\n  const curPrice = cur.price == null ? null : Number(cur.price);\n  const priceDropped = prevPrice != null && curPrice != null && curPrice < prevPrice;\n  const fingerprintChanged = String(prev.fingerprint ?? '') !== String(cur.fingerprint ?? '');\n  if (priceDropped || fingerprintChanged) {\n    changed.push({\n      ...cur,\n      prevPrice,\n      priceDropped,\n      changeType: priceDropped ? 'price_drop' : 'updated',\n    });\n  }\n}\n\n// пропавшее (было активно, сейчас нет)\nfor (const [id, prev] of prevById) {\n  if (!curById.has(id)) removed.push(prev);\n}\n\nconst hasChanges = added.length + changed.length + removed.length > 0;\n\n// Одиночный item с итогом — удобно для IF и Telegram.\nreturn [{\n  json: {\n    sourceKey: $('Source Config').first().json.sourceKey,\n    hasChanges,\n    counts: { added: added.length, changed: changed.length, removed: removed.length },\n    added,\n    changed,\n    removed,\n  },\n}];"
+      },
+      "id": "e0ec387f-a6a0-4258-979f-74e02337ab8c",
+      "name": "Detect Changes",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1100, 300]
+    },
+    {
+      "parameters": {
+        "operation": "executeQuery",
+        "query": "-- Апсерт текущего снапшота + мягкое \"погашение\" пропавших записей.\n-- Выполняется всегда (даже без изменений) чтобы БД была актуальной.\nWITH incoming AS (\n  SELECT * FROM json_to_recordset($2::json)\n    AS x(external_id text, title text, company text, price numeric, url text, fingerprint text)\n)\n, upsert AS (\n  INSERT INTO monitor_items (source_key, external_id, title, company, price, url, fingerprint, is_active, first_seen_at, last_seen_at, updated_at)\n  SELECT $1, external_id, title, company, price, url, fingerprint, true, now(), now(), now() FROM incoming\n  ON CONFLICT (source_key, external_id) DO UPDATE SET\n    title = EXCLUDED.title,\n    company = EXCLUDED.company,\n    price = EXCLUDED.price,\n    url = EXCLUDED.url,\n    fingerprint = EXCLUDED.fingerprint,\n    is_active = true,\n    last_seen_at = now(),\n    updated_at = CASE WHEN monitor_items.fingerprint IS DISTINCT FROM EXCLUDED.fingerprint THEN now() ELSE monitor_items.updated_at END\n  RETURNING 1\n)\nUPDATE monitor_items m SET is_active = false, updated_at = now()\nWHERE m.source_key = $1 AND m.is_active = true\n  AND m.external_id NOT IN (SELECT external_id FROM incoming);",
+        "options": {
+          "queryReplacement": "={{ $('Source Config').first().json.sourceKey }},={{ JSON.stringify($('Normalize Items').all().map(i => ({ external_id: i.json.externalId, title: i.json.title, company: i.json.company, price: i.json.price, url: i.json.url, fingerprint: i.json.fingerprint }))) }}"
+        }
+      },
+      "id": "3efcecdc-306c-48dc-91b5-15c133f1d66e",
+      "name": "Persist Snapshot",
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.5,
+      "position": [1320, 460]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "cond-has-changes",
+              "leftValue": "={{ $json.hasChanges }}",
+              "rightValue": true,
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "4ae39ada-5caa-49cc-af2e-b8c5cf77a0e7",
+      "name": "IF Has Changes",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [1320, 300]
+    },
+    {
+      "parameters": {
+        "jsCode": "// Формирование текста сводки для Telegram (только при наличии изменений).\nconst d = $input.first().json;\nconst c = d.counts;\n\nconst lines = [];\nlines.push(`<b>Мониторинг: ${d.sourceKey}</b>`);\nlines.push(`Новое: ${c.added} | Изменилось: ${c.changed} | Пропало: ${c.removed}`);\nlines.push('');\n\nconst esc = (s) => String(s ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n\nif (d.added.length) {\n  lines.push('<b>Новое:</b>');\n  for (const j of d.added.slice(0, 10)) {\n    lines.push(`+ <a href=\"${esc(j.url)}\">${esc(j.title)}</a> — ${esc(j.company)}${j.price != null ? ' ($' + j.price + ')' : ''}`);\n  }\n  lines.push('');\n}\nif (d.changed.length) {\n  lines.push('<b>Изменилось:</b>');\n  for (const j of d.changed.slice(0, 10)) {\n    const tag = j.changeType === 'price_drop' ? `подешевело ${j.prevPrice}→${j.price}` : 'обновилось';\n    lines.push(`~ <a href=\"${esc(j.url)}\">${esc(j.title)}</a> — ${esc(j.company)} (${tag})`);\n  }\n  lines.push('');\n}\nif (d.removed.length) {\n  lines.push('<b>Пропало:</b>');\n  for (const j of d.removed.slice(0, 10)) {\n    lines.push(`- ${esc(j.title)} — ${esc(j.company)}`);\n  }\n}\n\nreturn [{ json: { text: lines.join('\\n') } }];"
+      },
+      "id": "bc4a10d2-7d20-413a-9587-fbaf0062c79b",
+      "name": "Build Summary",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [1540, 200]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "id": "fb785209-0298-40c4-8ac5-eaa9660d5cad",
+      "name": "Telegram Summary",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [1760, 200]
+    }
+  ],
+  "connections": {
+    "Schedule Trigger": {
+      "main": [[{ "node": "Source Config", "type": "main", "index": 0 }]]
+    },
+    "Source Config": {
+      "main": [[{ "node": "HTTP Request", "type": "main", "index": 0 }]]
+    },
+    "HTTP Request": {
+      "main": [[{ "node": "Normalize Items", "type": "main", "index": 0 }]]
+    },
+    "Normalize Items": {
+      "main": [[{ "node": "Load Previous Snapshot", "type": "main", "index": 0 }]]
+    },
+    "Load Previous Snapshot": {
+      "main": [[{ "node": "Detect Changes", "type": "main", "index": 0 }]]
+    },
+    "Detect Changes": {
+      "main": [[
+        { "node": "IF Has Changes", "type": "main", "index": 0 },
+        { "node": "Persist Snapshot", "type": "main", "index": 0 }
+      ]]
+    },
+    "IF Has Changes": {
+      "main": [
+        [{ "node": "Build Summary", "type": "main", "index": 0 }],
+        []
+      ]
+    },
+    "Build Summary": {
+      "main": [[{ "node": "Telegram Summary", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

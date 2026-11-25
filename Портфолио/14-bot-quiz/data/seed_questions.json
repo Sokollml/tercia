@@ -1,0 +1,172 @@
+[
+  {
+    "category": "История",
+    "lang": "ru",
+    "text": "В каком году произошло Крещение Руси?",
+    "options": ["882", "988", "1147", "1237"],
+    "correct_index": 1,
+    "explanation": "Князь Владимир крестил Русь в 988 году."
+  },
+  {
+    "category": "История",
+    "lang": "ru",
+    "text": "Кто был первым президентом СССР?",
+    "options": ["Леонид Брежнев", "Борис Ельцин", "Михаил Горбачёв", "Никита Хрущёв"],
+    "correct_index": 2,
+    "explanation": "М. С. Горбачёв стал первым и единственным президентом СССР в 1990 году."
+  },
+  {
+    "category": "География",
+    "lang": "ru",
+    "text": "Какая река самая длинная в мире?",
+    "options": ["Амазонка", "Нил", "Янцзы", "Миссисипи"],
+    "correct_index": 1,
+    "explanation": "Нил традиционно считается самой длинной рекой (~6650 км)."
+  },
+  {
+    "category": "География",
+    "lang": "ru",
+    "text": "Столица Австралии — это...",
+    "options": ["Сидней", "Мельбурн", "Канберра", "Перт"],
+    "correct_index": 2,
+    "explanation": "Столица Австралии — Канберра, а не Сидней."
+  },
+  {
+    "category": "Наука",
+    "lang": "ru",
+    "text": "Какой химический элемент обозначается символом O?",
+    "options": ["Золото", "Кислород", "Осмий", "Олово"],
+    "correct_index": 1,
+    "explanation": "O — Oxygenium, кислород."
+  },
+  {
+    "category": "Наука",
+    "lang": "ru",
+    "text": "Сколько планет в Солнечной системе?",
+    "options": ["7", "8", "9", "10"],
+    "correct_index": 1,
+    "explanation": "С 2006 года официально 8 планет; Плутон — карликовая планета."
+  },
+  {
+    "category": "Кино",
+    "lang": "ru",
+    "text": "Кто снял фильм «Сталкер» (1979)?",
+    "options": ["Сергей Эйзенштейн", "Андрей Тарковский", "Никита Михалков", "Эльдар Рязанов"],
+    "correct_index": 1,
+    "explanation": "«Сталкер» снял Андрей Тарковский."
+  },
+  {
+    "category": "Спорт",
+    "lang": "ru",
+    "text": "Сколько игроков одной команды одновременно на поле в футболе?",
+    "options": ["9", "10", "11", "12"],
+    "correct_index": 2,
+    "explanation": "11 игроков, включая вратаря."
+  },
+  {
+    "category": "Технологии",
+    "lang": "ru",
+    "text": "Что означает аббревиатура HTTP?",
+    "options": [
+      "HyperText Transfer Protocol",
+      "High Transfer Text Protocol",
+      "Hyperlink Text Transmission Path",
+      "Home Tool Transfer Protocol"
+    ],
+    "correct_index": 0,
+    "explanation": "HTTP — HyperText Transfer Protocol."
+  },
+  {
+    "category": "Технологии",
+    "lang": "ru",
+    "text": "Кто считается автором языка программирования Python?",
+    "options": ["Джеймс Гослинг", "Гвидо ван Россум", "Деннис Ритчи", "Бьёрн Страуструп"],
+    "correct_index": 1,
+    "explanation": "Python создал Гвидо ван Россум в 1991 году."
+  },
+  {
+    "category": "History",
+    "lang": "en",
+    "text": "In which year did World War II end?",
+    "options": ["1918", "1939", "1945", "1950"],
+    "correct_index": 2,
+    "explanation": "World War II ended in 1945."
+  },
+  {
+    "category": "History",
+    "lang": "en",
+    "text": "Who was the first President of the United States?",
+    "options": ["Thomas Jefferson", "George Washington", "Abraham Lincoln", "John Adams"],
+    "correct_index": 1,
+    "explanation": "George Washington served from 1789 to 1797."
+  },
+  {
+    "category": "Geography",
+    "lang": "en",
+    "text": "What is the largest ocean on Earth?",
+    "options": ["Atlantic", "Indian", "Arctic", "Pacific"],
+    "correct_index": 3,
+    "explanation": "The Pacific Ocean is the largest and deepest."
+  },
+  {
+    "category": "Geography",
+    "lang": "en",
+    "text": "The capital of Canada is...",
+    "options": ["Toronto", "Vancouver", "Ottawa", "Montreal"],
+    "correct_index": 2,
+    "explanation": "Ottawa is the capital of Canada."
+  },
+  {
+    "category": "Science",
+    "lang": "en",
+    "text": "What gas do plants primarily absorb for photosynthesis?",
+    "options": ["Oxygen", "Nitrogen", "Carbon dioxide", "Hydrogen"],
+    "correct_index": 2,
+    "explanation": "Plants absorb carbon dioxide during photosynthesis."
+  },
+  {
+    "category": "Science",
+    "lang": "en",
+    "text": "What is the chemical symbol for gold?",
+    "options": ["Go", "Gd", "Au", "Ag"],
+    "correct_index": 2,
+    "explanation": "Au comes from the Latin 'aurum'."
+  },
+  {
+    "category": "Movies",
+    "lang": "en",
+    "text": "Which movie features the character Forrest Gump?",
+    "options": ["Cast Away", "Forrest Gump", "The Green Mile", "Big"],
+    "correct_index": 1,
+    "explanation": "Tom Hanks starred in Forrest Gump (1994)."
+  },
+  {
+    "category": "Sports",
+    "lang": "en",
+    "text": "How many players are on a basketball team on the court at once?",
+    "options": ["4", "5", "6", "7"],
+    "correct_index": 1,
+    "explanation": "Five players per team are on the court."
+  },
+  {
+    "category": "Technology",
+    "lang": "en",
+    "text": "What does 'CPU' stand for?",
+    "options": [
+      "Central Processing Unit",
+      "Computer Personal Unit",
+      "Central Program Utility",
+      "Core Processing Unifier"
+    ],
+    "correct_index": 0,
+    "explanation": "CPU — Central Processing Unit."
+  },
+  {
+    "category": "Technology",
+    "lang": "en",
+    "text": "Which company developed the Android operating system?",
+    "options": ["Apple", "Microsoft", "Google", "IBM"],
+    "correct_index": 2,
+    "explanation": "Android was developed by Google (originally Android Inc.)."
+  }
+]

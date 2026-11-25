@@ -1,0 +1,693 @@
+{
+ "handle": "tercia.dev",
+ "posts": [
+  {
+   "id": "p0-portfolio",
+   "net": "portfolio",
+   "format": "feed",
+   "theme": "dark",
+   "name": "Анонс портфолио",
+   "slides": [
+    {
+     "layout": "hook",
+     "kick": "Портфолио",
+     "title": "Работы, которые *можно открыть*",
+     "sub": "Собственные проекты: работающий код, а не макеты.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "list",
+     "kick": "Что внутри",
+     "title": "Четыре направления",
+     "sub": "",
+     "items": "Сайты и лендинги\nTelegram-боты\nMini-app в Telegram\nАвтоматизация на n8n",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "work",
+     "kick": "Всё на одной странице",
+     "title": "Девять работ подробно",
+     "sub": "И ещё десять — списком.",
+     "items": "",
+     "big": "",
+     "img": "img/portfolio-page.jpg",
+     "tag": "tercia.dev/portfolio",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "cta",
+     "kick": "Живые демо",
+     "title": "Три работы открываются *с телефона*",
+     "sub": "Сайт ресторана, сайт фитнес-студии и четыре лендинга.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "tercia.dev/portfolio",
+     "contacts": "Telegram: @tercia_it",
+     "fill": false
+    }
+   ]
+  },
+  {
+   "id": "p1-bot-booking",
+   "net": "portfolio",
+   "format": "feed",
+   "theme": "dark",
+   "name": "Бот записи",
+   "slides": [
+    {
+     "layout": "hook",
+     "kick": "Бот записи",
+     "title": "Салон теряет клиентов, *пока спит*",
+     "sub": "Клиент хочет записаться в 23:40. Администратор ответит утром — клиент уже у конкурента.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "list",
+     "kick": "Как работает",
+     "title": "Запись без администратора",
+     "sub": "",
+     "items": "Клиент выбирает услугу\nВидит только свободное время\nПодтверждает в один тап\nЗа час до визита бот напоминает\nМастер получает уведомление",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "number",
+     "kick": "Главное",
+     "title": "двойных записей",
+     "sub": "Слот бронируется атомарно: два клиента не займут одно время.",
+     "items": "",
+     "big": "0",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "quote",
+     "kick": "",
+     "title": "Клиент выбирает услугу и время *сам*.",
+     "sub": "Бот записи к мастеру",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "cta",
+     "kick": "Кому подойдёт",
+     "title": "Салонам, барбершопам, *автосервисам*",
+     "sub": "Стоматологии, репетиторы — везде, где записывают на время.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "Написать в Telegram",
+     "contacts": "@tercia_it · tercia.dev",
+     "fill": false
+    }
+   ]
+  },
+  {
+   "id": "p2-ai-support",
+   "net": "portfolio",
+   "format": "feed",
+   "theme": "violet",
+   "name": "ИИ-поддержка",
+   "slides": [
+    {
+     "layout": "hook",
+     "kick": "ИИ-поддержка",
+     "title": "ИИ, который *не врёт* вашим клиентам",
+     "sub": "Обычная нейросеть легко придумает правдоподобный ответ. Этот бот так не умеет.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "list",
+     "kick": "Правила бота",
+     "title": "Как он отвечает",
+     "sub": "",
+     "items": "Ищет ответ только в вашей базе\nНе нашёл — не сочиняет\nПередаёт вопрос человеку\nЗаписывает вопросы без ответа",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "work",
+     "kick": "Под капотом",
+     "title": "Схема в n8n",
+     "sub": "Вопрос → поиск по базе → ответ или передача оператору.",
+     "items": "",
+     "big": "",
+     "img": "img/11-faq.jpg",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "quote",
+     "kick": "",
+     "title": "Если ответа нет — *передаёт человеку*.",
+     "sub": "ИИ-поддержка по базе знаний",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "cta",
+     "kick": "Кому подойдёт",
+     "title": "Бизнесу с потоком *одинаковых вопросов*",
+     "sub": "Цены, сроки, доставка, запись — бот снимает это с людей.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "Написать в Telegram",
+     "contacts": "@tercia_it · tercia.dev",
+     "fill": false
+    }
+   ]
+  },
+  {
+   "id": "p3-lead-pipeline",
+   "net": "portfolio",
+   "format": "feed",
+   "theme": "dark",
+   "name": "Пайплайн заявок",
+   "slides": [
+    {
+     "layout": "hook",
+     "kick": "Автоматизация",
+     "title": "Заявки с сайта *теряются*. Проверьте свою",
+     "sub": "Пять мест, где уходит клиент, пока вы думаете, что всё работает.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "list",
+     "kick": "Где теряются",
+     "title": "Пять дыр в воронке",
+     "sub": "",
+     "items": "Письмо с формы уходит в «Спам»\nЗаявка пришла ночью — ответили утром\nОдин клиент оставил три заявки\nНикто не знает, кто уже ответил\nЗаявки живут в личной почте",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "list",
+     "kick": "Что делает пайплайн",
+     "title": "Каждая заявка — на месте",
+     "sub": "",
+     "items": "Проверяет контакты\nОтсеивает дубли\nРазбирает заявку с помощью ИИ\nСразу уведомляет ответственного\nЗаписывает всё в базу",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "work",
+     "kick": "Как выглядит",
+     "title": "Пайплайн в n8n",
+     "sub": "Утром приходит сводка за день.",
+     "items": "",
+     "big": "",
+     "img": "img/20-pipeline.jpg",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "cta",
+     "kick": "Разберём вашу",
+     "title": "Покажу, как это *чинится*",
+     "sub": "Пример работает — ваш будет на ваших источниках заявок.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "Написать в Telegram",
+     "contacts": "@tercia_it · tercia.dev",
+     "fill": false
+    }
+   ]
+  },
+  {
+   "id": "p4-loyalty",
+   "net": "portfolio",
+   "format": "feed",
+   "theme": "acid",
+   "name": "Карта лояльности",
+   "slides": [
+    {
+     "layout": "hook",
+     "kick": "Mini-app",
+     "title": "Пластиковые карточки теряют. *Telegram* — нет",
+     "sub": "Карта лояльности прямо в мессенджере, без установки приложения.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "work",
+     "kick": "Как выглядит",
+     "title": "Штампы в Telegram",
+     "sub": "Клиент копит, бариста отмечает.",
+     "items": "",
+     "big": "",
+     "img": "img/18-loyalty-phone.jpg",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "list",
+     "kick": "Как работает",
+     "title": "Два тапа на кассе",
+     "sub": "",
+     "items": "Клиент открывает карту в Telegram\nПоказывает QR-код\nБариста ставит штамп\nКаждый десятый напиток — в подарок",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "quote",
+     "kick": "",
+     "title": "Бариста отмечает *в два тапа*.",
+     "sub": "Карта лояльности",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "cta",
+     "kick": "Кому подойдёт",
+     "title": "Кофейням и всем, к кому *возвращаются*",
+     "sub": "Пекарни, барбершопы, точки с повторными покупками.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "Написать в Telegram",
+     "contacts": "@tercia_it · tercia.dev",
+     "fill": false
+    }
+   ]
+  },
+  {
+   "id": "p5-restaurant",
+   "net": "portfolio",
+   "format": "feed",
+   "theme": "dark",
+   "name": "Сайт ресторана",
+   "slides": [
+    {
+     "layout": "hook",
+     "kick": "Ресторан",
+     "title": "Меню меняет *владелец*, а не разработчик",
+     "sub": "Чтобы поправить цену, не нужно никому звонить.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "work",
+     "kick": "Как выглядит",
+     "title": "Сайт остерии",
+     "sub": "Меню, бронь столов, галерея.",
+     "items": "",
+     "big": "",
+     "img": "img/01-restaurant.jpg",
+     "tag": "живое демо",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "list",
+     "kick": "Что внутри",
+     "title": "Всё из админки",
+     "sub": "",
+     "items": "Блюда, цены и фото\nБронь столов\nГалерея зала\nАдаптив под телефон",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "cta",
+     "kick": "Живое демо",
+     "title": "Откройте прямо *с телефона*",
+     "sub": "Сайт лежит в портфолио — полистайте.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "tercia.dev/portfolio",
+     "contacts": "Telegram: @tercia_it",
+     "fill": false
+    }
+   ]
+  },
+  {
+   "id": "p6-fitness",
+   "net": "portfolio",
+   "format": "feed",
+   "theme": "dark",
+   "name": "Сайт фитнес-студии",
+   "slides": [
+    {
+     "layout": "hook",
+     "kick": "Фитнес",
+     "title": "Расписание обновляет *администратор*",
+     "sub": "Занятия и тренеры меняются из админки, без разработчика.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "work",
+     "kick": "Как выглядит",
+     "title": "Сайт студии",
+     "sub": "Расписание, тренеры, тарифы.",
+     "items": "",
+     "big": "",
+     "img": "img/02-fitness.jpg",
+     "tag": "живое демо",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "list",
+     "kick": "Что внутри",
+     "title": "Всё из админки",
+     "sub": "",
+     "items": "Сетка занятий по дням\nКарточки тренеров\nТарифы и пробное занятие\nРусская и английская версии",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "cta",
+     "kick": "Живое демо",
+     "title": "Откройте прямо *с телефона*",
+     "sub": "Сайт лежит в портфолио — полистайте.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "tercia.dev/portfolio",
+     "contacts": "Telegram: @tercia_it",
+     "fill": false
+    }
+   ]
+  },
+  {
+   "id": "p7-landings",
+   "net": "portfolio",
+   "format": "feed",
+   "theme": "dark",
+   "name": "Четыре лендинга",
+   "slides": [
+    {
+     "layout": "hook",
+     "kick": "Лендинги",
+     "title": "Не знаете, какой сайт хотите? *Выберите стиль*",
+     "sub": "Четыре готовых направления дизайна — листайте.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "work",
+     "kick": "Стиль 1",
+     "title": "Swiss",
+     "sub": "Строгая сетка — для сервисов и IT.",
+     "items": "",
+     "big": "",
+     "img": "img/04-saas.jpg",
+     "tag": "живое демо",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "work",
+     "kick": "Стиль 2",
+     "title": "Editorial",
+     "sub": "Крупный шрифт и воздух — для кофеен и брендов.",
+     "items": "",
+     "big": "",
+     "img": "img/04-coffee.jpg",
+     "tag": "живое демо",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "work",
+     "kick": "Стиль 3",
+     "title": "Tactile",
+     "sub": "Тёмный и глубокий — для приложений.",
+     "items": "",
+     "big": "",
+     "img": "img/04-app.jpg",
+     "tag": "живое демо",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "work",
+     "kick": "Стиль 4",
+     "title": "Maximalist",
+     "sub": "Смелая типографика — для курсов и событий.",
+     "items": "",
+     "big": "",
+     "img": "img/04-course.jpg",
+     "tag": "живое демо",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "cta",
+     "kick": "Живое демо",
+     "title": "Все четыре открываются *с телефона*",
+     "sub": "Покажите, какой ближе — от него и пойдём.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "tercia.dev/portfolio",
+     "contacts": "Telegram: @tercia_it",
+     "fill": false
+    }
+   ]
+  },
+  {
+   "id": "p8-community",
+   "net": "portfolio",
+   "format": "feed",
+   "theme": "violet",
+   "name": "Бот вовлечённости",
+   "slides": [
+    {
+     "layout": "hook",
+     "kick": "Сообщества",
+     "title": "Чат оживает, когда за активность *дают очки*",
+     "sub": "Бот превращает переписку в игру с уровнями и топом недели.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "list",
+     "kick": "Что умеет",
+     "title": "Очки и уровни",
+     "sub": "",
+     "items": "Очки за сообщения\nЗащита от накрутки\nСерии дней подряд\nТоп за неделю\nВопрос дня, когда чат затих",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "quote",
+     "kick": "",
+     "title": "Очки за активность *с защитой от накрутки*.",
+     "sub": "Бот вовлечённости",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "cta",
+     "kick": "Кому подойдёт",
+     "title": "Каналам, клубам и *сообществам*",
+     "sub": "Покажу бота в тестовом чате.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "Написать в Telegram",
+     "contacts": "@tercia_it · tercia.dev",
+     "fill": false
+    }
+   ]
+  },
+  {
+   "id": "p9-crosspost",
+   "net": "portfolio",
+   "format": "feed",
+   "theme": "dark",
+   "name": "Кросс-постинг",
+   "slides": [
+    {
+     "layout": "hook",
+     "kick": "Кросс-постинг",
+     "title": "Пишете пост *один раз*",
+     "sub": "Дальше он сам уходит во все каналы по расписанию.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "list",
+     "kick": "Как устроено",
+     "title": "Очередь и расписание",
+     "sub": "",
+     "items": "Пост попадает в очередь\nУходит в каналы в нужное время\nОтчёт, что и куда ушло",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "work",
+     "kick": "Как выглядит",
+     "title": "Схема в n8n",
+     "sub": "Очередь, отложенный постинг, отчёт.",
+     "items": "",
+     "big": "",
+     "img": "img/22-crosspost.jpg",
+     "tag": "",
+     "cta": "",
+     "contacts": "",
+     "fill": false
+    },
+    {
+     "layout": "cta",
+     "kick": "Кому подойдёт",
+     "title": "SMM-агентствам, селлерам и *блогерам*",
+     "sub": "Везде, где каналов больше одного.",
+     "items": "",
+     "big": "",
+     "img": "",
+     "tag": "",
+     "cta": "Написать в Telegram",
+     "contacts": "@tercia_it · tercia.dev",
+     "fill": false
+    }
+   ]
+  }
+ ]
+}

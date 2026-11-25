@@ -1,0 +1,40 @@
+<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Manrope:wght@400;500;600&family=JetBrains+Mono:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#0A0A0F;--line-3:#24242E;--fg:#F4F4F6;--muted:#B4B4BE;--muted-2:#8E8E98;
+--acid:#D3FB52;--acid-ink:#0A0A0F;--violet:#7C3AED;
+--sans:'Manrope',system-ui,sans-serif;--disp:'Space Grotesk',system-ui,sans-serif;--mono:'JetBrains Mono',monospace}
+*{box-sizing:border-box;margin:0;padding:0}
+body{width:{{WIDTH}}px;height:{{HEIGHT}}px;background:var(--bg);color:var(--fg);font-family:var(--sans);overflow:hidden;position:relative}
+.grid{position:absolute;inset:0;background-image:linear-gradient(rgba(255,255,255,.045) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.045) 1px,transparent 1px);background-size:{{GRID}}px {{GRID}}px;mask-image:radial-gradient(ellipse 70% 65% at 22% 10%,#000 20%,transparent 72%)}
+.orb{position:absolute;border-radius:50%;filter:blur({{BLUR}}px)}
+.orb-v{width:{{OV1}}px;height:{{OV1}}px;background:rgba(124,58,237,.30);top:{{OV2}}px;left:{{OV3}}px}
+.orb-a{width:{{OA1}}px;height:{{OA1}}px;background:rgba(211,251,82,.13);bottom:{{OA2}}px;right:{{OA3}}px}
+.noise{position:absolute;inset:0;opacity:.035;background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E")}
+.glyph{position:absolute;right:{{GLYPHR}}px;bottom:{{GLYPHB}}px;width:{{GLYPHW}}px;fill:var(--acid);opacity:.09}
+.in{position:relative;height:100%;padding:{{PAD}}px;display:flex;flex-direction:column;justify-content:space-between}
+.brand{display:flex;align-items:center;gap:{{GAP2}}px}
+.mark{width:{{MARK}}px;height:{{MARK}}px;fill:var(--acid)}
+.brand b{font-family:var(--disp);font-weight:700;font-size:{{BRANDSIZE}}px;letter-spacing:-.02em}
+.brand span{font-family:var(--mono);font-size:{{KICKSIZE}}px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2);border-left:1px solid var(--line-3);padding-left:{{PL1}}px}
+.rule{width:{{RULEW}}px;height:{{RULEH}}px;background:var(--acid);border-radius:2px;margin-bottom:{{MB0}}px}
+h1{font-family:var(--disp);font-weight:700;font-size:{{H1SIZE}}px;line-height:.96;letter-spacing:-.04em;max-width:{{MAXW}}px}
+h1 em{font-style:normal;color:var(--acid)}
+p{font-size:{{SUBSIZE}}px;line-height:1.4;color:var(--muted);margin-top:{{MB2}}px;max-width:{{SUBMAX}}px}
+.foot{font-family:var(--mono);font-size:{{KICKSIZE}}px;letter-spacing:.2em;text-transform:uppercase;color:var(--muted-2)}
+</style></head><body>
+<div class="grid"></div><div class="orb orb-v"></div><div class="orb orb-a"></div><div class="noise"></div>
+<svg class="glyph" viewBox="0 0 120 120"><g><path d="M12 0C12.35 10.2 13.5 11.55 21 12C13.5 12.45 12.35 13.8 12 24C11.65 13.8 10.5 12.45 3 12C10.5 11.55 11.65 10.2 12 0Z" transform="translate(19 22) scale(2.8)"/><path d="M12 0C12.35 10.2 13.5 11.55 21 12C13.5 12.45 12.35 13.8 12 24C11.65 13.8 10.5 12.45 3 12C10.5 11.55 11.65 10.2 12 0Z" transform="translate(60 12) scale(1.4)"/><path d="M12 0C12.35 10.2 13.5 11.55 21 12C13.5 12.45 12.35 13.8 12 24C11.65 13.8 10.5 12.45 3 12C10.5 11.55 11.65 10.2 12 0Z" transform="translate(16 73) scale(1.62)"/></g></svg>
+<div class="in">
+  <div class="brand">
+    <svg class="mark" viewBox="0 0 120 120"><g><path d="M12 0C12.35 10.2 13.5 11.55 21 12C13.5 12.45 12.35 13.8 12 24C11.65 13.8 10.5 12.45 3 12C10.5 11.55 11.65 10.2 12 0Z" transform="translate(19 22) scale(2.8)"/><path d="M12 0C12.35 10.2 13.5 11.55 21 12C13.5 12.45 12.35 13.8 12 24C11.65 13.8 10.5 12.45 3 12C10.5 11.55 11.65 10.2 12 0Z" transform="translate(60 12) scale(1.4)"/><path d="M12 0C12.35 10.2 13.5 11.55 21 12C13.5 12.45 12.35 13.8 12 24C11.65 13.8 10.5 12.45 3 12C10.5 11.55 11.65 10.2 12 0Z" transform="translate(16 73) scale(1.62)"/></g></svg>
+    <b>Tercia</b><span>{{TITLEKICK}}</span>
+  </div>
+  <div>
+    <div class="rule"></div>
+    <h1>{{HEADLINE}}</h1>
+    <p>{{SUBLINE}}</p>
+  </div>
+  <div class="foot">{{FOOT}}</div>
+</div>
+</body></html>
